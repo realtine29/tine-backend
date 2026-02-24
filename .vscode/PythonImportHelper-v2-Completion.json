@@ -1,0 +1,705 @@
+[
+    {
+        "label": "cv2",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "cv2",
+        "description": "cv2",
+        "detail": "cv2",
+        "documentation": {}
+    },
+    {
+        "label": "numpy",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "numpy",
+        "description": "numpy",
+        "detail": "numpy",
+        "documentation": {}
+    },
+    {
+        "label": "time",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "time",
+        "description": "time",
+        "detail": "time",
+        "documentation": {}
+    },
+    {
+        "label": "threading",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "threading",
+        "description": "threading",
+        "detail": "threading",
+        "documentation": {}
+    },
+    {
+        "label": "os",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "os",
+        "description": "os",
+        "detail": "os",
+        "documentation": {}
+    },
+    {
+        "label": "sys",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "sys",
+        "description": "sys",
+        "detail": "sys",
+        "documentation": {}
+    },
+    {
+        "label": "json",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "json",
+        "description": "json",
+        "detail": "json",
+        "documentation": {}
+    },
+    {
+        "label": "cloudinary",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "cloudinary",
+        "description": "cloudinary",
+        "detail": "cloudinary",
+        "documentation": {}
+    },
+    {
+        "label": "cloudinary.uploader",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "cloudinary.uploader",
+        "description": "cloudinary.uploader",
+        "detail": "cloudinary.uploader",
+        "documentation": {}
+    },
+    {
+        "label": "cloudinary.api",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "cloudinary.api",
+        "description": "cloudinary.api",
+        "detail": "cloudinary.api",
+        "documentation": {}
+    },
+    {
+        "label": "smtplib",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "smtplib",
+        "description": "smtplib",
+        "detail": "smtplib",
+        "documentation": {}
+    },
+    {
+        "label": "datetime",
+        "importPath": "datetime",
+        "description": "datetime",
+        "isExtraImport": true,
+        "detail": "datetime",
+        "documentation": {}
+    },
+    {
+        "label": "MIMEText",
+        "importPath": "email.mime.text",
+        "description": "email.mime.text",
+        "isExtraImport": true,
+        "detail": "email.mime.text",
+        "documentation": {}
+    },
+    {
+        "label": "MIMEMultipart",
+        "importPath": "email.mime.multipart",
+        "description": "email.mime.multipart",
+        "isExtraImport": true,
+        "detail": "email.mime.multipart",
+        "documentation": {}
+    },
+    {
+        "label": "firebase_admin",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "firebase_admin",
+        "description": "firebase_admin",
+        "detail": "firebase_admin",
+        "documentation": {}
+    },
+    {
+        "label": "credentials",
+        "importPath": "firebase_admin",
+        "description": "firebase_admin",
+        "isExtraImport": true,
+        "detail": "firebase_admin",
+        "documentation": {}
+    },
+    {
+        "label": "firestore",
+        "importPath": "firebase_admin",
+        "description": "firebase_admin",
+        "isExtraImport": true,
+        "detail": "firebase_admin",
+        "documentation": {}
+    },
+    {
+        "label": "deque",
+        "importPath": "collections",
+        "description": "collections",
+        "isExtraImport": true,
+        "detail": "collections",
+        "documentation": {}
+    },
+    {
+        "label": "Flask",
+        "importPath": "flask",
+        "description": "flask",
+        "isExtraImport": true,
+        "detail": "flask",
+        "documentation": {}
+    },
+    {
+        "label": "Response",
+        "importPath": "flask",
+        "description": "flask",
+        "isExtraImport": true,
+        "detail": "flask",
+        "documentation": {}
+    },
+    {
+        "label": "request",
+        "importPath": "flask",
+        "description": "flask",
+        "isExtraImport": true,
+        "detail": "flask",
+        "documentation": {}
+    },
+    {
+        "label": "Flask",
+        "importPath": "flask",
+        "description": "flask",
+        "isExtraImport": true,
+        "detail": "flask",
+        "documentation": {}
+    },
+    {
+        "label": "request",
+        "importPath": "flask",
+        "description": "flask",
+        "isExtraImport": true,
+        "detail": "flask",
+        "documentation": {}
+    },
+    {
+        "label": "jsonify",
+        "importPath": "flask",
+        "description": "flask",
+        "isExtraImport": true,
+        "detail": "flask",
+        "documentation": {}
+    },
+    {
+        "label": "Response",
+        "importPath": "flask",
+        "description": "flask",
+        "isExtraImport": true,
+        "detail": "flask",
+        "documentation": {}
+    },
+    {
+        "label": "CORS",
+        "importPath": "flask_cors",
+        "description": "flask_cors",
+        "isExtraImport": true,
+        "detail": "flask_cors",
+        "documentation": {}
+    },
+    {
+        "label": "CORS",
+        "importPath": "flask_cors",
+        "description": "flask_cors",
+        "isExtraImport": true,
+        "detail": "flask_cors",
+        "documentation": {}
+    },
+    {
+        "label": "YOLO",
+        "importPath": "ultralytics",
+        "description": "ultralytics",
+        "isExtraImport": true,
+        "detail": "ultralytics",
+        "documentation": {}
+    },
+    {
+        "label": "load_model",
+        "importPath": "tensorflow.keras.models",
+        "description": "tensorflow.keras.models",
+        "isExtraImport": true,
+        "detail": "tensorflow.keras.models",
+        "documentation": {}
+    },
+    {
+        "label": "BehaviorValidator",
+        "kind": 6,
+        "importPath": "ai_model_server",
+        "description": "ai_model_server",
+        "peekOfCode": "class BehaviorValidator:\n    def __init__(self):\n        self.alert_counters = {} \n        self.MIN_FRAMES_STEAL = 3\n        self.MIN_FRAMES_SUSP = 5\n    def get_temporal_validation(self, track_id, current_label):\n        if track_id not in self.alert_counters:\n            self.alert_counters[track_id] = {\"label\": \"Normal\", \"count\": 0}\n        counter = self.alert_counters[track_id]\n        if current_label == counter[\"label\"]:",
+        "detail": "ai_model_server",
+        "documentation": {}
+    },
+    {
+        "label": "RTSPVideoStream",
+        "kind": 6,
+        "importPath": "ai_model_server",
+        "description": "ai_model_server",
+        "peekOfCode": "class RTSPVideoStream:\n    def __init__(self, src, name=None):\n        self.src = src\n        self.name = name\n        self.cap = cv2.VideoCapture(src, cv2.CAP_FFMPEG)\n        self.ret = False\n        self.frame = None\n        self.stopped = False\n        self.online = self.cap.isOpened()\n        threading.Thread(target=self.update, daemon=True).start()",
+        "detail": "ai_model_server",
+        "documentation": {}
+    },
+    {
+        "label": "add_camera",
+        "kind": 2,
+        "importPath": "ai_model_server",
+        "description": "ai_model_server",
+        "peekOfCode": "def add_camera():\n    data = request.get_json()\n    user_id = data.get(\"userId\")\n    camera_name = data.get(\"cameraName\")\n    rtsp_url = data.get(\"rtspUrl\")\n    if not all([user_id, camera_name, rtsp_url]):\n        return {\"error\": \"Missing data\"}, 400\n    # Check runtime duplicates in memory\n    if camera_name in cameras_dict:\n        return {\"error\": \"Camera name already exists\"}, 400",
+        "detail": "ai_model_server",
+        "documentation": {}
+    },
+    {
+        "label": "load_cameras_from_firestore",
+        "kind": 2,
+        "importPath": "ai_model_server",
+        "description": "ai_model_server",
+        "peekOfCode": "def load_cameras_from_firestore():\n    cams = db.collection(\"cameras\").stream()\n    cameras = {}\n    for cam_doc in cams:\n        data = cam_doc.to_dict()\n        try:\n            camera_name = data.get(\"name\")        \n            rtsp_url = data.get(\"rtsp_url\")      \n            if not camera_name or not rtsp_url:\n                print(\"⚠️ Skipping invalid camera document:\", data)",
+        "detail": "ai_model_server",
+        "documentation": {}
+    },
+    {
+        "label": "get_all_user_emails",
+        "kind": 2,
+        "importPath": "ai_model_server",
+        "description": "ai_model_server",
+        "peekOfCode": "def get_all_user_emails():\n    emails = []\n    try:\n        users_ref = db.collection(\"users\").stream()\n        for doc in users_ref:\n            user_data = doc.to_dict()\n            if \"email\" in user_data: emails.append(user_data[\"email\"])\n    except Exception as e: print(f\"!! Error fetching emails: {e}\")\n    return emails\ndef send_email_alert(label, cloud_url):",
+        "detail": "ai_model_server",
+        "documentation": {}
+    },
+    {
+        "label": "send_email_alert",
+        "kind": 2,
+        "importPath": "ai_model_server",
+        "description": "ai_model_server",
+        "peekOfCode": "def send_email_alert(label, cloud_url):\n    global EMAIL_LIMIT_REACHED\n    if not ENABLE_EMAILS:\n        return\n    if EMAIL_LIMIT_REACHED:\n        print(\"!! Skip Email: Daily Limit Reached.\")\n        return\n    recipient_list = get_all_user_emails()\n    if not recipient_list: return\n    try:",
+        "detail": "ai_model_server",
+        "documentation": {}
+    },
+    {
+        "label": "save_to_firebase",
+        "kind": 2,
+        "importPath": "ai_model_server",
+        "description": "ai_model_server",
+        "peekOfCode": "def save_to_firebase(label, cloud_url, accuracy, camera_name):\n    try:\n        accuracy_decimal = float(accuracy) / 100.0 if accuracy > 0 else 0.0\n        local_timestamp = datetime.now()\n        db.collection(\"detections\").add({\n            \"camera_name\": camera_name,\n            \"type\": label,\n            \"video_url\": cloud_url,\n            \"accuracy\": accuracy_decimal,\n            \"timestamp\": local_timestamp",
+        "detail": "ai_model_server",
+        "documentation": {}
+    },
+    {
+        "label": "save_alert_clip",
+        "kind": 2,
+        "importPath": "ai_model_server",
+        "description": "ai_model_server",
+        "peekOfCode": "def save_alert_clip(frame_buffer, label, track_id, accuracy=0, fps=30, suspect_count=1, camera_name=\"\"):\n    try:\n        frames = list(frame_buffer)\n        if not frames: return\n        ts_display = time.strftime(\"%Y-%m-%d %H:%M:%S\")\n        ts_short = time.strftime(\"%H:%M:%S\")\n        ts_file = time.strftime(\"%Y%m%d_%H%M%S\")\n        safe_label = label.replace(\":\", \"\").replace(\" \", \"_\")\n        os.makedirs(OUTPUT_DIR, exist_ok=True)\n        fn = f\"{OUTPUT_DIR}/{camera_name}_{safe_label}_ID{track_id}_{ts_file}.mp4\"",
+        "detail": "ai_model_server",
+        "documentation": {}
+    },
+    {
+        "label": "get_centroid",
+        "kind": 2,
+        "importPath": "ai_model_server",
+        "description": "ai_model_server",
+        "peekOfCode": "def get_centroid(kpts):\n    \"\"\"Returns the center (x, y) of the person based on keypoints.\"\"\"\n    xs = kpts[0::2]\n    ys = kpts[1::2]\n    return np.mean(xs), np.mean(ys)\ndef check_head_scanning(kpts, scan_history):\n    \"\"\"Detects sustained scanning (looking left then right).\"\"\"\n    nose_x = kpts[0]\n    left_sh_x = kpts[10] \n    right_sh_x = kpts[12] ",
+        "detail": "ai_model_server",
+        "documentation": {}
+    },
+    {
+        "label": "check_head_scanning",
+        "kind": 2,
+        "importPath": "ai_model_server",
+        "description": "ai_model_server",
+        "peekOfCode": "def check_head_scanning(kpts, scan_history):\n    \"\"\"Detects sustained scanning (looking left then right).\"\"\"\n    nose_x = kpts[0]\n    left_sh_x = kpts[10] \n    right_sh_x = kpts[12] \n    shoulder_width = abs(right_sh_x - left_sh_x)\n    if shoulder_width < 0.01: return False\n    look_ratio = (nose_x - left_sh_x) / shoulder_width\n    if look_ratio < 0.15: scan_history.append(\"LEFT\")\n    elif look_ratio > 0.85: scan_history.append(\"RIGHT\")",
+        "detail": "ai_model_server",
+        "documentation": {}
+    },
+    {
+        "label": "is_hand_near_face",
+        "kind": 2,
+        "importPath": "ai_model_server",
+        "description": "ai_model_server",
+        "peekOfCode": "def is_hand_near_face(kpts, height_px):\n    nose_x, nose_y = kpts[0], kpts[1]\n    lw_x, lw_y = kpts[18], kpts[19]\n    rw_x, rw_y = kpts[20], kpts[21]\n    dist_l = np.hypot(lw_x - nose_x, lw_y - nose_y) * height_px\n    dist_r = np.hypot(rw_x - nose_x, rw_y - nose_y) * height_px\n    return dist_l < (height_px * 0.15) or dist_r < (height_px * 0.15)\ndef is_hand_in_stashing_zone(kpts, h_px):\n    \"\"\"Checks if hands are near hips or pockets relative to torso size.\"\"\"\n    lw_x, lw_y = kpts[18], kpts[19]",
+        "detail": "ai_model_server",
+        "documentation": {}
+    },
+    {
+        "label": "is_hand_in_stashing_zone",
+        "kind": 2,
+        "importPath": "ai_model_server",
+        "description": "ai_model_server",
+        "peekOfCode": "def is_hand_in_stashing_zone(kpts, h_px):\n    \"\"\"Checks if hands are near hips or pockets relative to torso size.\"\"\"\n    lw_x, lw_y = kpts[18], kpts[19]\n    rw_x, rw_y = kpts[20], kpts[21]\n    l_hip_x, l_hip_y = kpts[22], kpts[23]\n    r_hip_x, r_hip_y = kpts[24], kpts[25]\n    shoulder_y = (kpts[11] + kpts[13]) / 2 \n    torso_h = abs((l_hip_y + r_hip_y)/2 - shoulder_y)\n    # 55% of torso height is a reliable stashing zone\n    dynamic_thresh = max(torso_h * 0.55, 0.05) ",
+        "detail": "ai_model_server",
+        "documentation": {}
+    },
+    {
+        "label": "gen_frames",
+        "kind": 2,
+        "importPath": "ai_model_server",
+        "description": "ai_model_server",
+        "peekOfCode": "def gen_frames(camera_name):\n    camera = cameras_dict.get(camera_name)\n    if not camera:\n        print(f\"Camera '{camera_name}' not found.\")\n        return\n    frame_buffer = deque(maxlen=BUFFER_SIZE)\n    frame_count = 0\n    LOGIC_SKIP = 2 \n    prev_frame_time = 0\n    new_frame_time = 0",
+        "detail": "ai_model_server",
+        "documentation": {}
+    },
+    {
+        "label": "get_cameras",
+        "kind": 2,
+        "importPath": "ai_model_server",
+        "description": "ai_model_server",
+        "peekOfCode": "def get_cameras():\n    return {\"cameras\": list(cameras_dict.keys())}, 200\n@app.route('/video/<camera_name>')\ndef video_feed(camera_name):\n    return Response(gen_frames(camera_name), mimetype='multipart/x-mixed-replace; boundary=frame')\n@app.route('/logs')\ndef get_logs():\n    if os.path.exists(LOG_FILE):\n        with open(LOG_FILE, 'r') as f: return Response(f.read(), mimetype='application/json')\n    return Response(\"[]\", mimetype='application/json')",
+        "detail": "ai_model_server",
+        "documentation": {}
+    },
+    {
+        "label": "video_feed",
+        "kind": 2,
+        "importPath": "ai_model_server",
+        "description": "ai_model_server",
+        "peekOfCode": "def video_feed(camera_name):\n    return Response(gen_frames(camera_name), mimetype='multipart/x-mixed-replace; boundary=frame')\n@app.route('/logs')\ndef get_logs():\n    if os.path.exists(LOG_FILE):\n        with open(LOG_FILE, 'r') as f: return Response(f.read(), mimetype='application/json')\n    return Response(\"[]\", mimetype='application/json')\nif __name__ == '__main__':\n    app.run(host='0.0.0.0', port=5000, threaded=True)",
+        "detail": "ai_model_server",
+        "documentation": {}
+    },
+    {
+        "label": "get_logs",
+        "kind": 2,
+        "importPath": "ai_model_server",
+        "description": "ai_model_server",
+        "peekOfCode": "def get_logs():\n    if os.path.exists(LOG_FILE):\n        with open(LOG_FILE, 'r') as f: return Response(f.read(), mimetype='application/json')\n    return Response(\"[]\", mimetype='application/json')\nif __name__ == '__main__':\n    app.run(host='0.0.0.0', port=5000, threaded=True)",
+        "detail": "ai_model_server",
+        "documentation": {}
+    },
+    {
+        "label": "ENABLE_EMAILS",
+        "kind": 5,
+        "importPath": "ai_model_server",
+        "description": "ai_model_server",
+        "peekOfCode": "ENABLE_EMAILS = True \nEMAIL_SENDER = \"realinochristine55@gmail.com\"\nEMAIL_PASSWORD = \"wxapomrlleploeqq\" \nANOMALY_MODEL_PATH = 'anomaly_detector.keras'\nSTEALING_MODEL_PATH = 'stealing_classifier.keras'\nYOLO_MODEL = 'yolov8n-pose.pt'\nLOG_FILE = \"ai_model/detections_log.json\"\nOUTPUT_DIR = \"ai_model/detections\"\n# THRESHOLDS \nPOSE_THRESHOLD = 0.18       ",
+        "detail": "ai_model_server",
+        "documentation": {}
+    },
+    {
+        "label": "EMAIL_SENDER",
+        "kind": 5,
+        "importPath": "ai_model_server",
+        "description": "ai_model_server",
+        "peekOfCode": "EMAIL_SENDER = \"realinochristine55@gmail.com\"\nEMAIL_PASSWORD = \"wxapomrlleploeqq\" \nANOMALY_MODEL_PATH = 'anomaly_detector.keras'\nSTEALING_MODEL_PATH = 'stealing_classifier.keras'\nYOLO_MODEL = 'yolov8n-pose.pt'\nLOG_FILE = \"ai_model/detections_log.json\"\nOUTPUT_DIR = \"ai_model/detections\"\n# THRESHOLDS \nPOSE_THRESHOLD = 0.18       \n# Aggressive Mode",
+        "detail": "ai_model_server",
+        "documentation": {}
+    },
+    {
+        "label": "EMAIL_PASSWORD",
+        "kind": 5,
+        "importPath": "ai_model_server",
+        "description": "ai_model_server",
+        "peekOfCode": "EMAIL_PASSWORD = \"wxapomrlleploeqq\" \nANOMALY_MODEL_PATH = 'anomaly_detector.keras'\nSTEALING_MODEL_PATH = 'stealing_classifier.keras'\nYOLO_MODEL = 'yolov8n-pose.pt'\nLOG_FILE = \"ai_model/detections_log.json\"\nOUTPUT_DIR = \"ai_model/detections\"\n# THRESHOLDS \nPOSE_THRESHOLD = 0.18       \n# Aggressive Mode\nSTEAL_THRESH = 0.20         ",
+        "detail": "ai_model_server",
+        "documentation": {}
+    },
+    {
+        "label": "ANOMALY_MODEL_PATH",
+        "kind": 5,
+        "importPath": "ai_model_server",
+        "description": "ai_model_server",
+        "peekOfCode": "ANOMALY_MODEL_PATH = 'anomaly_detector.keras'\nSTEALING_MODEL_PATH = 'stealing_classifier.keras'\nYOLO_MODEL = 'yolov8n-pose.pt'\nLOG_FILE = \"ai_model/detections_log.json\"\nOUTPUT_DIR = \"ai_model/detections\"\n# THRESHOLDS \nPOSE_THRESHOLD = 0.18       \n# Aggressive Mode\nSTEAL_THRESH = 0.20         \n# Email Threshold",
+        "detail": "ai_model_server",
+        "documentation": {}
+    },
+    {
+        "label": "STEALING_MODEL_PATH",
+        "kind": 5,
+        "importPath": "ai_model_server",
+        "description": "ai_model_server",
+        "peekOfCode": "STEALING_MODEL_PATH = 'stealing_classifier.keras'\nYOLO_MODEL = 'yolov8n-pose.pt'\nLOG_FILE = \"ai_model/detections_log.json\"\nOUTPUT_DIR = \"ai_model/detections\"\n# THRESHOLDS \nPOSE_THRESHOLD = 0.18       \n# Aggressive Mode\nSTEAL_THRESH = 0.20         \n# Email Threshold\nEMAIL_MIN_ACCURACY = 50 ",
+        "detail": "ai_model_server",
+        "documentation": {}
+    },
+    {
+        "label": "YOLO_MODEL",
+        "kind": 5,
+        "importPath": "ai_model_server",
+        "description": "ai_model_server",
+        "peekOfCode": "YOLO_MODEL = 'yolov8n-pose.pt'\nLOG_FILE = \"ai_model/detections_log.json\"\nOUTPUT_DIR = \"ai_model/detections\"\n# THRESHOLDS \nPOSE_THRESHOLD = 0.18       \n# Aggressive Mode\nSTEAL_THRESH = 0.20         \n# Email Threshold\nEMAIL_MIN_ACCURACY = 50 \n# TIMERS ",
+        "detail": "ai_model_server",
+        "documentation": {}
+    },
+    {
+        "label": "LOG_FILE",
+        "kind": 5,
+        "importPath": "ai_model_server",
+        "description": "ai_model_server",
+        "peekOfCode": "LOG_FILE = \"ai_model/detections_log.json\"\nOUTPUT_DIR = \"ai_model/detections\"\n# THRESHOLDS \nPOSE_THRESHOLD = 0.18       \n# Aggressive Mode\nSTEAL_THRESH = 0.20         \n# Email Threshold\nEMAIL_MIN_ACCURACY = 50 \n# TIMERS \nHISTORY_SECONDS = 20               ",
+        "detail": "ai_model_server",
+        "documentation": {}
+    },
+    {
+        "label": "OUTPUT_DIR",
+        "kind": 5,
+        "importPath": "ai_model_server",
+        "description": "ai_model_server",
+        "peekOfCode": "OUTPUT_DIR = \"ai_model/detections\"\n# THRESHOLDS \nPOSE_THRESHOLD = 0.18       \n# Aggressive Mode\nSTEAL_THRESH = 0.20         \n# Email Threshold\nEMAIL_MIN_ACCURACY = 50 \n# TIMERS \nHISTORY_SECONDS = 20               \nFPS_ESTIMATE = 15",
+        "detail": "ai_model_server",
+        "documentation": {}
+    },
+    {
+        "label": "POSE_THRESHOLD",
+        "kind": 5,
+        "importPath": "ai_model_server",
+        "description": "ai_model_server",
+        "peekOfCode": "POSE_THRESHOLD = 0.18       \n# Aggressive Mode\nSTEAL_THRESH = 0.20         \n# Email Threshold\nEMAIL_MIN_ACCURACY = 50 \n# TIMERS \nHISTORY_SECONDS = 20               \nFPS_ESTIMATE = 15\nHISTORY_LEN = HISTORY_SECONDS * FPS_ESTIMATE\nSTILLNESS_LIMIT = 20 * FPS_ESTIMATE ",
+        "detail": "ai_model_server",
+        "documentation": {}
+    },
+    {
+        "label": "STEAL_THRESH",
+        "kind": 5,
+        "importPath": "ai_model_server",
+        "description": "ai_model_server",
+        "peekOfCode": "STEAL_THRESH = 0.20         \n# Email Threshold\nEMAIL_MIN_ACCURACY = 50 \n# TIMERS \nHISTORY_SECONDS = 20               \nFPS_ESTIMATE = 15\nHISTORY_LEN = HISTORY_SECONDS * FPS_ESTIMATE\nSTILLNESS_LIMIT = 20 * FPS_ESTIMATE \nSCAN_WINDOW_SEC = 4 \nSCAN_LEN = SCAN_WINDOW_SEC * FPS_ESTIMATE",
+        "detail": "ai_model_server",
+        "documentation": {}
+    },
+    {
+        "label": "EMAIL_MIN_ACCURACY",
+        "kind": 5,
+        "importPath": "ai_model_server",
+        "description": "ai_model_server",
+        "peekOfCode": "EMAIL_MIN_ACCURACY = 50 \n# TIMERS \nHISTORY_SECONDS = 20               \nFPS_ESTIMATE = 15\nHISTORY_LEN = HISTORY_SECONDS * FPS_ESTIMATE\nSTILLNESS_LIMIT = 20 * FPS_ESTIMATE \nSCAN_WINDOW_SEC = 4 \nSCAN_LEN = SCAN_WINDOW_SEC * FPS_ESTIMATE\nLOGIC_SKIP = 2 \nALERT_MAX_DURATION = 10.0           ",
+        "detail": "ai_model_server",
+        "documentation": {}
+    },
+    {
+        "label": "HISTORY_SECONDS",
+        "kind": 5,
+        "importPath": "ai_model_server",
+        "description": "ai_model_server",
+        "peekOfCode": "HISTORY_SECONDS = 20               \nFPS_ESTIMATE = 15\nHISTORY_LEN = HISTORY_SECONDS * FPS_ESTIMATE\nSTILLNESS_LIMIT = 20 * FPS_ESTIMATE \nSCAN_WINDOW_SEC = 4 \nSCAN_LEN = SCAN_WINDOW_SEC * FPS_ESTIMATE\nLOGIC_SKIP = 2 \nALERT_MAX_DURATION = 10.0           \nROUTINE_COOLDOWN = 20.\nDEBUG_MODE = True ",
+        "detail": "ai_model_server",
+        "documentation": {}
+    },
+    {
+        "label": "FPS_ESTIMATE",
+        "kind": 5,
+        "importPath": "ai_model_server",
+        "description": "ai_model_server",
+        "peekOfCode": "FPS_ESTIMATE = 15\nHISTORY_LEN = HISTORY_SECONDS * FPS_ESTIMATE\nSTILLNESS_LIMIT = 20 * FPS_ESTIMATE \nSCAN_WINDOW_SEC = 4 \nSCAN_LEN = SCAN_WINDOW_SEC * FPS_ESTIMATE\nLOGIC_SKIP = 2 \nALERT_MAX_DURATION = 10.0           \nROUTINE_COOLDOWN = 20.\nDEBUG_MODE = True \n#  VIDEO CONFIGURATION ",
+        "detail": "ai_model_server",
+        "documentation": {}
+    },
+    {
+        "label": "HISTORY_LEN",
+        "kind": 5,
+        "importPath": "ai_model_server",
+        "description": "ai_model_server",
+        "peekOfCode": "HISTORY_LEN = HISTORY_SECONDS * FPS_ESTIMATE\nSTILLNESS_LIMIT = 20 * FPS_ESTIMATE \nSCAN_WINDOW_SEC = 4 \nSCAN_LEN = SCAN_WINDOW_SEC * FPS_ESTIMATE\nLOGIC_SKIP = 2 \nALERT_MAX_DURATION = 10.0           \nROUTINE_COOLDOWN = 20.\nDEBUG_MODE = True \n#  VIDEO CONFIGURATION \nTARGET_FPS = 30.0               ",
+        "detail": "ai_model_server",
+        "documentation": {}
+    },
+    {
+        "label": "STILLNESS_LIMIT",
+        "kind": 5,
+        "importPath": "ai_model_server",
+        "description": "ai_model_server",
+        "peekOfCode": "STILLNESS_LIMIT = 20 * FPS_ESTIMATE \nSCAN_WINDOW_SEC = 4 \nSCAN_LEN = SCAN_WINDOW_SEC * FPS_ESTIMATE\nLOGIC_SKIP = 2 \nALERT_MAX_DURATION = 10.0           \nROUTINE_COOLDOWN = 20.\nDEBUG_MODE = True \n#  VIDEO CONFIGURATION \nTARGET_FPS = 30.0               \nFRAME_DELAY = 1.0 / TARGET_FPS ",
+        "detail": "ai_model_server",
+        "documentation": {}
+    },
+    {
+        "label": "SCAN_WINDOW_SEC",
+        "kind": 5,
+        "importPath": "ai_model_server",
+        "description": "ai_model_server",
+        "peekOfCode": "SCAN_WINDOW_SEC = 4 \nSCAN_LEN = SCAN_WINDOW_SEC * FPS_ESTIMATE\nLOGIC_SKIP = 2 \nALERT_MAX_DURATION = 10.0           \nROUTINE_COOLDOWN = 20.\nDEBUG_MODE = True \n#  VIDEO CONFIGURATION \nTARGET_FPS = 30.0               \nFRAME_DELAY = 1.0 / TARGET_FPS \nBUFFER_SECONDS = 60             ",
+        "detail": "ai_model_server",
+        "documentation": {}
+    },
+    {
+        "label": "SCAN_LEN",
+        "kind": 5,
+        "importPath": "ai_model_server",
+        "description": "ai_model_server",
+        "peekOfCode": "SCAN_LEN = SCAN_WINDOW_SEC * FPS_ESTIMATE\nLOGIC_SKIP = 2 \nALERT_MAX_DURATION = 10.0           \nROUTINE_COOLDOWN = 20.\nDEBUG_MODE = True \n#  VIDEO CONFIGURATION \nTARGET_FPS = 30.0               \nFRAME_DELAY = 1.0 / TARGET_FPS \nBUFFER_SECONDS = 60             \nBUFFER_SIZE = int(TARGET_FPS * BUFFER_SECONDS)",
+        "detail": "ai_model_server",
+        "documentation": {}
+    },
+    {
+        "label": "LOGIC_SKIP",
+        "kind": 5,
+        "importPath": "ai_model_server",
+        "description": "ai_model_server",
+        "peekOfCode": "LOGIC_SKIP = 2 \nALERT_MAX_DURATION = 10.0           \nROUTINE_COOLDOWN = 20.\nDEBUG_MODE = True \n#  VIDEO CONFIGURATION \nTARGET_FPS = 30.0               \nFRAME_DELAY = 1.0 / TARGET_FPS \nBUFFER_SECONDS = 60             \nBUFFER_SIZE = int(TARGET_FPS * BUFFER_SECONDS)\n# Global flag for email limit",
+        "detail": "ai_model_server",
+        "documentation": {}
+    },
+    {
+        "label": "ALERT_MAX_DURATION",
+        "kind": 5,
+        "importPath": "ai_model_server",
+        "description": "ai_model_server",
+        "peekOfCode": "ALERT_MAX_DURATION = 10.0           \nROUTINE_COOLDOWN = 20.\nDEBUG_MODE = True \n#  VIDEO CONFIGURATION \nTARGET_FPS = 30.0               \nFRAME_DELAY = 1.0 / TARGET_FPS \nBUFFER_SECONDS = 60             \nBUFFER_SIZE = int(TARGET_FPS * BUFFER_SECONDS)\n# Global flag for email limit\nEMAIL_LIMIT_REACHED = False",
+        "detail": "ai_model_server",
+        "documentation": {}
+    },
+    {
+        "label": "ROUTINE_COOLDOWN",
+        "kind": 5,
+        "importPath": "ai_model_server",
+        "description": "ai_model_server",
+        "peekOfCode": "ROUTINE_COOLDOWN = 20.\nDEBUG_MODE = True \n#  VIDEO CONFIGURATION \nTARGET_FPS = 30.0               \nFRAME_DELAY = 1.0 / TARGET_FPS \nBUFFER_SECONDS = 60             \nBUFFER_SIZE = int(TARGET_FPS * BUFFER_SECONDS)\n# Global flag for email limit\nEMAIL_LIMIT_REACHED = False\nimport cv2",
+        "detail": "ai_model_server",
+        "documentation": {}
+    },
+    {
+        "label": "DEBUG_MODE",
+        "kind": 5,
+        "importPath": "ai_model_server",
+        "description": "ai_model_server",
+        "peekOfCode": "DEBUG_MODE = True \n#  VIDEO CONFIGURATION \nTARGET_FPS = 30.0               \nFRAME_DELAY = 1.0 / TARGET_FPS \nBUFFER_SECONDS = 60             \nBUFFER_SIZE = int(TARGET_FPS * BUFFER_SECONDS)\n# Global flag for email limit\nEMAIL_LIMIT_REACHED = False\nimport cv2\nimport time",
+        "detail": "ai_model_server",
+        "documentation": {}
+    },
+    {
+        "label": "TARGET_FPS",
+        "kind": 5,
+        "importPath": "ai_model_server",
+        "description": "ai_model_server",
+        "peekOfCode": "TARGET_FPS = 30.0               \nFRAME_DELAY = 1.0 / TARGET_FPS \nBUFFER_SECONDS = 60             \nBUFFER_SIZE = int(TARGET_FPS * BUFFER_SECONDS)\n# Global flag for email limit\nEMAIL_LIMIT_REACHED = False\nimport cv2\nimport time\n#  PRECISION LOGIC HELPERS\nclass BehaviorValidator:",
+        "detail": "ai_model_server",
+        "documentation": {}
+    },
+    {
+        "label": "FRAME_DELAY",
+        "kind": 5,
+        "importPath": "ai_model_server",
+        "description": "ai_model_server",
+        "peekOfCode": "FRAME_DELAY = 1.0 / TARGET_FPS \nBUFFER_SECONDS = 60             \nBUFFER_SIZE = int(TARGET_FPS * BUFFER_SECONDS)\n# Global flag for email limit\nEMAIL_LIMIT_REACHED = False\nimport cv2\nimport time\n#  PRECISION LOGIC HELPERS\nclass BehaviorValidator:\n    def __init__(self):",
+        "detail": "ai_model_server",
+        "documentation": {}
+    },
+    {
+        "label": "BUFFER_SECONDS",
+        "kind": 5,
+        "importPath": "ai_model_server",
+        "description": "ai_model_server",
+        "peekOfCode": "BUFFER_SECONDS = 60             \nBUFFER_SIZE = int(TARGET_FPS * BUFFER_SECONDS)\n# Global flag for email limit\nEMAIL_LIMIT_REACHED = False\nimport cv2\nimport time\n#  PRECISION LOGIC HELPERS\nclass BehaviorValidator:\n    def __init__(self):\n        self.alert_counters = {} ",
+        "detail": "ai_model_server",
+        "documentation": {}
+    },
+    {
+        "label": "BUFFER_SIZE",
+        "kind": 5,
+        "importPath": "ai_model_server",
+        "description": "ai_model_server",
+        "peekOfCode": "BUFFER_SIZE = int(TARGET_FPS * BUFFER_SECONDS)\n# Global flag for email limit\nEMAIL_LIMIT_REACHED = False\nimport cv2\nimport time\n#  PRECISION LOGIC HELPERS\nclass BehaviorValidator:\n    def __init__(self):\n        self.alert_counters = {} \n        self.MIN_FRAMES_STEAL = 3",
+        "detail": "ai_model_server",
+        "documentation": {}
+    },
+    {
+        "label": "EMAIL_LIMIT_REACHED",
+        "kind": 5,
+        "importPath": "ai_model_server",
+        "description": "ai_model_server",
+        "peekOfCode": "EMAIL_LIMIT_REACHED = False\nimport cv2\nimport time\n#  PRECISION LOGIC HELPERS\nclass BehaviorValidator:\n    def __init__(self):\n        self.alert_counters = {} \n        self.MIN_FRAMES_STEAL = 3\n        self.MIN_FRAMES_SUSP = 5\n    def get_temporal_validation(self, track_id, current_label):",
+        "detail": "ai_model_server",
+        "documentation": {}
+    },
+    {
+        "label": "validator",
+        "kind": 5,
+        "importPath": "ai_model_server",
+        "description": "ai_model_server",
+        "peekOfCode": "validator = BehaviorValidator()\n#  INITIALIZATION\napp = Flask(__name__)\nCORS(app)\ncameras_dict = {}  # key = camera_name, value = RTSPVideoStream object\n@app.route(\"/addCamera\", methods=[\"POST\"])\ndef add_camera():\n    data = request.get_json()\n    user_id = data.get(\"userId\")\n    camera_name = data.get(\"cameraName\")",
+        "detail": "ai_model_server",
+        "documentation": {}
+    },
+    {
+        "label": "app",
+        "kind": 5,
+        "importPath": "ai_model_server",
+        "description": "ai_model_server",
+        "peekOfCode": "app = Flask(__name__)\nCORS(app)\ncameras_dict = {}  # key = camera_name, value = RTSPVideoStream object\n@app.route(\"/addCamera\", methods=[\"POST\"])\ndef add_camera():\n    data = request.get_json()\n    user_id = data.get(\"userId\")\n    camera_name = data.get(\"cameraName\")\n    rtsp_url = data.get(\"rtspUrl\")\n    if not all([user_id, camera_name, rtsp_url]):",
+        "detail": "ai_model_server",
+        "documentation": {}
+    },
+    {
+        "label": "cameras_dict",
+        "kind": 5,
+        "importPath": "ai_model_server",
+        "description": "ai_model_server",
+        "peekOfCode": "cameras_dict = {}  # key = camera_name, value = RTSPVideoStream object\n@app.route(\"/addCamera\", methods=[\"POST\"])\ndef add_camera():\n    data = request.get_json()\n    user_id = data.get(\"userId\")\n    camera_name = data.get(\"cameraName\")\n    rtsp_url = data.get(\"rtspUrl\")\n    if not all([user_id, camera_name, rtsp_url]):\n        return {\"error\": \"Missing data\"}, 400\n    # Check runtime duplicates in memory",
+        "detail": "ai_model_server",
+        "documentation": {}
+    },
+    {
+        "label": "db",
+        "kind": 5,
+        "importPath": "ai_model_server",
+        "description": "ai_model_server",
+        "peekOfCode": "db = firestore.client()\n# VIDEO STREAM CLASS\nclass RTSPVideoStream:\n    def __init__(self, src, name=None):\n        self.src = src\n        self.name = name\n        self.cap = cv2.VideoCapture(src, cv2.CAP_FFMPEG)\n        self.ret = False\n        self.frame = None\n        self.stopped = False",
+        "detail": "ai_model_server",
+        "documentation": {}
+    },
+    {
+        "label": "cameras_dict",
+        "kind": 5,
+        "importPath": "ai_model_server",
+        "description": "ai_model_server",
+        "peekOfCode": "cameras_dict = load_cameras_from_firestore()\ncloudinary.config(\n    cloud_name=\"dpkds0mpw\",\n    api_key=\"573419718341736\",\n    api_secret=\"wFzLdsZ_O9vLiZKP2bvZCN_XGjA\",\n    secure=True\n)\nprint(\">> Loading AI Models on Nitro V 15...\")\ntry:\n    lstm_model = load_model(ANOMALY_MODEL_PATH)",
+        "detail": "ai_model_server",
+        "documentation": {}
+    },
+    {
+        "label": "people_states",
+        "kind": 5,
+        "importPath": "ai_model_server",
+        "description": "ai_model_server",
+        "peekOfCode": "people_states = {}\ndef gen_frames(camera_name):\n    camera = cameras_dict.get(camera_name)\n    if not camera:\n        print(f\"Camera '{camera_name}' not found.\")\n        return\n    frame_buffer = deque(maxlen=BUFFER_SIZE)\n    frame_count = 0\n    LOGIC_SKIP = 2 \n    prev_frame_time = 0",
+        "detail": "ai_model_server",
+        "documentation": {}
+    },
+    {
+        "label": "add_camera",
+        "kind": 2,
+        "importPath": "app",
+        "description": "app",
+        "peekOfCode": "def add_camera():\n    data = request.get_json()\n    name = data.get(\"cameraName\")\n    url = data.get(\"rtspUrl\")\n    if name and url:\n        # Initialize the camera in your dictionary\n        cameras_dict[name] = url \n        print(f\"Camera {name} added for RTSP: {url}\")\n        return jsonify({\"success\": True}), 200\n    return jsonify({\"error\": \"Invalid data\"}), 400",
+        "detail": "app",
+        "documentation": {}
+    },
+    {
+        "label": "app",
+        "kind": 5,
+        "importPath": "app",
+        "description": "app",
+        "peekOfCode": "app = Flask(__name__)\nCORS(app) # <--- CRITICAL FIX: This stops the network blocks you see in the screenshot\ncameras_dict = {} # This stores your cameraName and rtspUrl\n@app.route(\"/addCamera\", methods=[\"POST\"])\ndef add_camera():\n    data = request.get_json()\n    name = data.get(\"cameraName\")\n    url = data.get(\"rtspUrl\")\n    if name and url:\n        # Initialize the camera in your dictionary",
+        "detail": "app",
+        "documentation": {}
+    },
+    {
+        "label": "cameras_dict",
+        "kind": 5,
+        "importPath": "app",
+        "description": "app",
+        "peekOfCode": "cameras_dict = {} # This stores your cameraName and rtspUrl\n@app.route(\"/addCamera\", methods=[\"POST\"])\ndef add_camera():\n    data = request.get_json()\n    name = data.get(\"cameraName\")\n    url = data.get(\"rtspUrl\")\n    if name and url:\n        # Initialize the camera in your dictionary\n        cameras_dict[name] = url \n        print(f\"Camera {name} added for RTSP: {url}\")",
+        "detail": "app",
+        "documentation": {}
+    }
+]

@@ -1,0 +1,142 @@
+[
+  {
+    "camera_name": "cam1",
+    "timestamp": "February 11, 2026 at 09:09:19 PM",
+    "type": "CRIME: Stealing",
+    "video_url": "ai_model/detections/cam1_CRIME_Stealing_ID20_20260211_210911.mp4",
+    "accuracy": 0.99
+  },
+  {
+    "camera_name": "cam1",
+    "timestamp": "February 11, 2026 at 09:09:24 PM",
+    "type": "CRIME: Stealing",
+    "video_url": "ai_model/detections/cam1_CRIME_Stealing_ID20_20260211_210916.mp4",
+    "accuracy": 0.99
+  },
+  {
+    "camera_name": "cam1",
+    "timestamp": "February 11, 2026 at 09:09:40 PM",
+    "type": "CRIME: Stealing",
+    "video_url": "ai_model/detections/cam1_CRIME_Stealing_ID29_20260211_210933.mp4",
+    "accuracy": 0.99
+  },
+  {
+    "camera_name": "cam1",
+    "timestamp": "February 11, 2026 at 09:09:44 PM",
+    "type": "CRIME: Stealing",
+    "video_url": "ai_model/detections/cam1_CRIME_Stealing_ID29_20260211_210938.mp4",
+    "accuracy": 0.64
+  },
+  {
+    "camera_name": "cam1",
+    "timestamp": "February 11, 2026 at 09:13:01 PM",
+    "type": "Loitering (Area)",
+    "video_url": "ai_model/detections/cam1_Loitering_(Area)_ID29_20260211_211241.mp4",
+    "accuracy": 0.92
+  },
+  {
+    "camera_name": "cam1",
+    "timestamp": "February 11, 2026 at 09:13:26 PM",
+    "type": "CRIME: Stealing",
+    "video_url": "ai_model/detections/cam1_CRIME_Stealing_ID29_20260211_211307.mp4",
+    "accuracy": 0.99
+  },
+  {
+    "camera_name": "cam1",
+    "timestamp": "February 11, 2026 at 09:13:55 PM",
+    "type": "Suspicious: Pacing",
+    "video_url": "ai_model/detections/cam1_Suspicious_Pacing_ID29_20260211_211338.mp4",
+    "accuracy": 0.88
+  },
+  {
+    "camera_name": "cam1",
+    "timestamp": "February 11, 2026 at 09:14:17 PM",
+    "type": "CRIME: Stealing",
+    "video_url": "ai_model/detections/cam1_CRIME_Stealing_ID40_20260211_211403.mp4",
+    "accuracy": 0.43
+  },
+  {
+    "camera_name": "cam1",
+    "timestamp": "February 11, 2026 at 09:25:46 PM",
+    "type": "CRIME: Stealing",
+    "video_url": "ai_model/detections/cam1_CRIME_Stealing_ID1_20260211_212539.mp4",
+    "accuracy": 0.41
+  },
+  {
+    "camera_name": "cam1",
+    "timestamp": "February 11, 2026 at 09:26:34 PM",
+    "type": "Loitering (Still)",
+    "video_url": "ai_model/detections/cam1_Loitering_(Still)_ID1_20260211_212622.mp4",
+    "accuracy": 0.9
+  },
+  {
+    "camera_name": "cam1",
+    "timestamp": "February 11, 2026 at 09:27:21 PM",
+    "type": "CRIME: Stealing",
+    "video_url": "ai_model/detections/cam1_CRIME_Stealing_ID1_20260211_212707.mp4",
+    "accuracy": 0.24
+  },
+  {
+    "camera_name": "cam1",
+    "timestamp": "February 11, 2026 at 09:28:20 PM",
+    "type": "Loitering (Still)",
+    "video_url": "ai_model/detections/cam1_Loitering_(Still)_ID1_20260211_212801.mp4",
+    "accuracy": 0.9
+  },
+  {
+    "camera_name": "cam1",
+    "timestamp": "February 11, 2026 at 09:28:54 PM",
+    "type": "Loitering (Area)",
+    "video_url": "ai_model/detections/cam1_Loitering_(Area)_ID1_20260211_212831.mp4",
+    "accuracy": 0.92
+  },
+  {
+    "camera_name": "cam1",
+    "timestamp": "February 11, 2026 at 09:29:16 PM",
+    "type": "Loitering (Area)",
+    "video_url": "ai_model/detections/cam1_Loitering_(Area)_ID1_20260211_212901.mp4",
+    "accuracy": 0.92
+  },
+  {
+    "camera_name": "cam1",
+    "timestamp": "February 11, 2026 at 09:29:50 PM",
+    "type": "Loitering (Area)",
+    "video_url": "ai_model/detections/cam1_Loitering_(Area)_ID1_20260211_212931.mp4",
+    "accuracy": 0.92
+  },
+  {
+    "camera_name": "cam1",
+    "timestamp": "February 11, 2026 at 09:50:01 PM",
+    "type": "CRIME: Stealing",
+    "video_url": "ai_model/detections/cam1_CRIME_Stealing_ID1_20260211_214957.mp4",
+    "accuracy": 0.26
+  },
+  {
+    "camera_name": "cam1",
+    "timestamp": "February 11, 2026 at 09:56:06 PM",
+    "type": "CRIME: Stealing",
+    "video_url": "ai_model/detections/cam1_CRIME_Stealing_ID1_20260211_215602.mp4",
+    "accuracy": 0.41
+  },
+  {
+    "camera_name": "cam1",
+    "timestamp": "February 11, 2026 at 09:56:53 PM",
+    "type": "Loitering (Still)",
+    "video_url": "ai_model/detections/cam1_Loitering_(Still)_ID1_20260211_215648.mp4",
+    "accuracy": 0.9
+  },
+  {
+    "camera_name": "cam1",
+    "timestamp": "February 11, 2026 at 10:01:15 PM",
+    "type": "Loitering (Still)",
+    "video_url": "ai_model/detections/cam1_Loitering_(Still)_ID1_20260211_220102.mp4",
+    "accuracy": 0.9
+  },
+  {
+    "camera_name": "cam1",
+    "timestamp": "February 11, 2026 at 10:07:10 PM",
+    "type": "Loitering (Still)",
+    "video_url": "ai_model/detections/cam1_Loitering_(Still)_ID1_20260211_220705.mp4",
+    "accuracy": 0.9
+  }
+]
