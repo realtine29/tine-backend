@@ -1,162 +1,142 @@
 [
   {
     "camera_name": "cam1",
-    "timestamp": "2026-03-08 21:00:36",
-    "type": "PREDICTION: Stealing",
-    "video_url": "ai_model/detections/cam1_PREDICTION_Stealing_ID42_20260308_210036.mp4",
-    "accuracy": 0.97,
-    "confidence": "HIGH CONFIDENCE"
+    "timestamp": "February 11, 2026 at 09:09:19 PM",
+    "type": "CRIME: Stealing",
+    "video_url": "ai_model/detections/cam1_CRIME_Stealing_ID20_20260211_210911.mp4",
+    "accuracy": 0.99
   },
   {
     "camera_name": "cam1",
-    "timestamp": "2026-03-08 21:26:13",
+    "timestamp": "February 11, 2026 at 09:09:24 PM",
+    "type": "CRIME: Stealing",
+    "video_url": "ai_model/detections/cam1_CRIME_Stealing_ID20_20260211_210916.mp4",
+    "accuracy": 0.99
+  },
+  {
+    "camera_name": "cam1",
+    "timestamp": "February 11, 2026 at 09:09:40 PM",
+    "type": "CRIME: Stealing",
+    "video_url": "ai_model/detections/cam1_CRIME_Stealing_ID29_20260211_210933.mp4",
+    "accuracy": 0.99
+  },
+  {
+    "camera_name": "cam1",
+    "timestamp": "February 11, 2026 at 09:09:44 PM",
+    "type": "CRIME: Stealing",
+    "video_url": "ai_model/detections/cam1_CRIME_Stealing_ID29_20260211_210938.mp4",
+    "accuracy": 0.64
+  },
+  {
+    "camera_name": "cam1",
+    "timestamp": "February 11, 2026 at 09:13:01 PM",
+    "type": "Loitering (Area)",
+    "video_url": "ai_model/detections/cam1_Loitering_(Area)_ID29_20260211_211241.mp4",
+    "accuracy": 0.92
+  },
+  {
+    "camera_name": "cam1",
+    "timestamp": "February 11, 2026 at 09:13:26 PM",
+    "type": "CRIME: Stealing",
+    "video_url": "ai_model/detections/cam1_CRIME_Stealing_ID29_20260211_211307.mp4",
+    "accuracy": 0.99
+  },
+  {
+    "camera_name": "cam1",
+    "timestamp": "February 11, 2026 at 09:13:55 PM",
+    "type": "Suspicious: Pacing",
+    "video_url": "ai_model/detections/cam1_Suspicious_Pacing_ID29_20260211_211338.mp4",
+    "accuracy": 0.88
+  },
+  {
+    "camera_name": "cam1",
+    "timestamp": "February 11, 2026 at 09:14:17 PM",
+    "type": "CRIME: Stealing",
+    "video_url": "ai_model/detections/cam1_CRIME_Stealing_ID40_20260211_211403.mp4",
+    "accuracy": 0.43
+  },
+  {
+    "camera_name": "cam1",
+    "timestamp": "February 11, 2026 at 09:25:46 PM",
+    "type": "CRIME: Stealing",
+    "video_url": "ai_model/detections/cam1_CRIME_Stealing_ID1_20260211_212539.mp4",
+    "accuracy": 0.41
+  },
+  {
+    "camera_name": "cam1",
+    "timestamp": "February 11, 2026 at 09:26:34 PM",
     "type": "Loitering (Still)",
-    "video_url": "ai_model/detections/cam1_Loitering_(Still)_ID4_20260308_212613.mp4",
-    "accuracy": 0.9,
-    "confidence": "HIGH CONFIDENCE"
+    "video_url": "ai_model/detections/cam1_Loitering_(Still)_ID1_20260211_212622.mp4",
+    "accuracy": 0.9
   },
   {
     "camera_name": "cam1",
-    "timestamp": "2026-03-08 21:27:16",
+    "timestamp": "February 11, 2026 at 09:27:21 PM",
+    "type": "CRIME: Stealing",
+    "video_url": "ai_model/detections/cam1_CRIME_Stealing_ID1_20260211_212707.mp4",
+    "accuracy": 0.24
+  },
+  {
+    "camera_name": "cam1",
+    "timestamp": "February 11, 2026 at 09:28:20 PM",
     "type": "Loitering (Still)",
-    "video_url": "ai_model/detections/cam1_Loitering_(Still)_ID4_20260308_212716.mp4",
-    "accuracy": 0.9,
-    "confidence": "HIGH CONFIDENCE"
+    "video_url": "ai_model/detections/cam1_Loitering_(Still)_ID1_20260211_212801.mp4",
+    "accuracy": 0.9
   },
   {
     "camera_name": "cam1",
-    "timestamp": "2026-03-08 21:29:02",
-    "type": "Pacing",
-    "video_url": "ai_model/detections/cam1_Pacing_ID8_20260308_212902.mp4",
-    "accuracy": 0.88,
-    "confidence": "HIGH CONFIDENCE"
+    "timestamp": "February 11, 2026 at 09:28:54 PM",
+    "type": "Loitering (Area)",
+    "video_url": "ai_model/detections/cam1_Loitering_(Area)_ID1_20260211_212831.mp4",
+    "accuracy": 0.92
   },
   {
     "camera_name": "cam1",
-    "timestamp": "2026-03-08 21:30:05",
-    "type": "Suspicious Behavior",
-    "video_url": "ai_model/detections/cam1_Suspicious_Behavior_ID17_20260308_213005.mp4",
-    "accuracy": 0.72,
-    "confidence": "MODERATE CONFIDENCE"
+    "timestamp": "February 11, 2026 at 09:29:16 PM",
+    "type": "Loitering (Area)",
+    "video_url": "ai_model/detections/cam1_Loitering_(Area)_ID1_20260211_212901.mp4",
+    "accuracy": 0.92
   },
   {
     "camera_name": "cam1",
-    "timestamp": "2026-03-08 21:30:35",
-    "type": "Pacing",
-    "video_url": "ai_model/detections/cam1_Pacing_ID17_20260308_213035.mp4",
-    "accuracy": 0.88,
-    "confidence": "HIGH CONFIDENCE"
+    "timestamp": "February 11, 2026 at 09:29:50 PM",
+    "type": "Loitering (Area)",
+    "video_url": "ai_model/detections/cam1_Loitering_(Area)_ID1_20260211_212931.mp4",
+    "accuracy": 0.92
   },
   {
     "camera_name": "cam1",
-    "timestamp": "2026-03-08 21:31:06",
-    "type": "Pacing",
-    "video_url": "ai_model/detections/cam1_Pacing_ID17_20260308_213106.mp4",
-    "accuracy": 0.88,
-    "confidence": "HIGH CONFIDENCE"
+    "timestamp": "February 11, 2026 at 09:50:01 PM",
+    "type": "CRIME: Stealing",
+    "video_url": "ai_model/detections/cam1_CRIME_Stealing_ID1_20260211_214957.mp4",
+    "accuracy": 0.26
   },
   {
     "camera_name": "cam1",
-    "timestamp": "2026-03-08 21:32:13",
-    "type": "PREDICTION: Stealing",
-    "video_url": "ai_model/detections/cam1_PREDICTION_Stealing_ID20_20260308_213213.mp4",
-    "accuracy": 0.97,
-    "confidence": "HIGH CONFIDENCE"
+    "timestamp": "February 11, 2026 at 09:56:06 PM",
+    "type": "CRIME: Stealing",
+    "video_url": "ai_model/detections/cam1_CRIME_Stealing_ID1_20260211_215602.mp4",
+    "accuracy": 0.41
   },
   {
     "camera_name": "cam1",
-    "timestamp": "2026-03-08 21:37:25",
-    "type": "PREDICTION: Stealing",
-    "video_url": "ai_model/detections/cam1_PREDICTION_Stealing_ID4_20260308_213725.mp4",
-    "accuracy": 0.99,
-    "confidence": "HIGH CONFIDENCE"
-  },
-  {
-    "camera_name": "cam1",
-    "timestamp": "2026-03-08 21:37:49",
-    "type": "Suspicious Behavior",
-    "video_url": "ai_model/detections/cam1_Suspicious_Behavior_ID8_20260308_213749.mp4",
-    "accuracy": 0.52,
-    "confidence": "LOW CONFIDENCE"
-  },
-  {
-    "camera_name": "cam1",
-    "timestamp": "2026-03-08 21:38:47",
-    "type": "Pacing",
-    "video_url": "ai_model/detections/cam1_Pacing_ID9_20260308_213847.mp4",
-    "accuracy": 0.88,
-    "confidence": "HIGH CONFIDENCE"
-  },
-  {
-    "camera_name": "cam1",
-    "timestamp": "2026-03-08 21:40:03",
-    "type": "Pacing",
-    "video_url": "ai_model/detections/cam1_Pacing_ID13_20260308_214003.mp4",
-    "accuracy": 0.88,
-    "confidence": "HIGH CONFIDENCE"
-  },
-  {
-    "camera_name": "cam1",
-    "timestamp": "2026-03-08 21:46:28",
-    "type": "Suspicious Behavior",
-    "video_url": "ai_model/detections/cam1_Suspicious_Behavior_ID5_20260308_214628.mp4",
-    "accuracy": 0.68,
-    "confidence": "MODERATE CONFIDENCE"
-  },
-  {
-    "camera_name": "cam1",
-    "timestamp": "2026-03-08 21:46:58",
-    "type": "Suspicious Behavior",
-    "video_url": "ai_model/detections/cam1_Suspicious_Behavior_ID5_20260308_214658.mp4",
-    "accuracy": 0.99,
-    "confidence": "HIGH CONFIDENCE"
-  },
-  {
-    "camera_name": "cam1",
-    "timestamp": "2026-03-08 21:49:27",
-    "type": "Pacing",
-    "video_url": "ai_model/detections/cam1_Pacing_ID14_20260308_214927.mp4",
-    "accuracy": 0.88,
-    "confidence": "HIGH CONFIDENCE"
-  },
-  {
-    "camera_name": "cam1",
-    "timestamp": "2026-03-08 21:50:02",
+    "timestamp": "February 11, 2026 at 09:56:53 PM",
     "type": "Loitering (Still)",
-    "video_url": "ai_model/detections/cam1_Loitering_(Still)_ID19_20260308_215002.mp4",
-    "accuracy": 0.9,
-    "confidence": "HIGH CONFIDENCE"
+    "video_url": "ai_model/detections/cam1_Loitering_(Still)_ID1_20260211_215648.mp4",
+    "accuracy": 0.9
   },
   {
     "camera_name": "cam1",
-    "timestamp": "2026-03-08 21:50:32",
+    "timestamp": "February 11, 2026 at 10:01:15 PM",
     "type": "Loitering (Still)",
-    "video_url": "ai_model/detections/cam1_Loitering_(Still)_ID19_20260308_215032.mp4",
-    "accuracy": 0.9,
-    "confidence": "HIGH CONFIDENCE"
+    "video_url": "ai_model/detections/cam1_Loitering_(Still)_ID1_20260211_220102.mp4",
+    "accuracy": 0.9
   },
   {
     "camera_name": "cam1",
-    "timestamp": "2026-03-08 21:50:56",
-    "type": "PREDICTION: Stealing",
-    "video_url": "ai_model/detections/cam1_PREDICTION_Stealing_ID19_20260308_215056.mp4",
-    "accuracy": 0.99,
-    "confidence": "HIGH CONFIDENCE"
-  },
-  {
-    "camera_name": "cam1",
-    "timestamp": "2026-03-08 21:51:20",
-    "type": "PREDICTION: Stealing",
-    "video_url": "ai_model/detections/cam1_PREDICTION_Stealing_ID19_20260308_215120.mp4",
-    "accuracy": 0.99,
-    "confidence": "HIGH CONFIDENCE"
-  },
-  {
-    "camera_name": "cam1",
-    "timestamp": "2026-03-08 21:51:50",
+    "timestamp": "February 11, 2026 at 10:07:10 PM",
     "type": "Loitering (Still)",
-    "video_url": "ai_model/detections/cam1_Loitering_(Still)_ID19_20260308_215150.mp4",
-    "accuracy": 0.9,
-    "confidence": "HIGH CONFIDENCE"
+    "video_url": "ai_model/detections/cam1_Loitering_(Still)_ID1_20260211_220705.mp4",
+    "accuracy": 0.9
   }
 ]
