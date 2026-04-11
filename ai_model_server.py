@@ -163,11 +163,10 @@ validator = BehaviorValidator()
 app = Flask(__name__)
 # Explicitly allow CORS for the frontend origin
 CORS(app, resources={r"/*": {
-    "origins": ["https://bejewelled-cucurucho-944a9f.netlify.app", "http://localhost:3000"],
-    "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    "allow_headers": ["Content-Type", "Authorization"]
+    "origins": "*",
+    "methods": ["GET", "POST", "OPTIONS"],  # Siguraduhin na may POST dito
+    "allow_headers": ["Content-Type", "Authorization", "Cache-Control"]
 }})
-
 # Initialize security modules if available
 if SECURITY_AVAILABLE:
     try:
