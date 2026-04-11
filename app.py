@@ -251,15 +251,18 @@ def sse_stream():
     # Get or generate client ID
     client_id = request.args.get('client_id', str(uuid.uuid4()))
     
-    print(f"[SSE] Client {client_id} connecting with events: {event_types}")
+    # Get org_id for filtering
+    org_id = request.args.get('org_id')
+    
+    print(f"[SSE] Client {client_id} (Org: {org_id}) connecting with events: {event_types}")
     
     # Log SSE connection
     log_audit(
         action=AuditAction.SYSTEM_ACCESS,
-        details={'client_id': client_id, 'events': event_types}
+        details={'client_id': client_id, 'events': event_types, 'org_id': org_id}
     )
     
-    return create_sse_response(event_types, client_id)
+    return create_sse_response(event_types, client_id, org_id)
 
 
 @app.route("/sse/emitting/alert", methods=["POST"])
@@ -274,14 +277,24 @@ def sse_emit_alert():
     """
     data = request.get_json()
     
+    # Try to get org_id from data or from camera
+    camera_name = data.get('camera_name')
+    org_id = data.get('org_id')
+    
+    if not org_id and camera_name:
+        # Fallback to looking up camera org_id
+        from ai_model_server import get_org_id_for_camera
+        org_id = get_org_id_for_camera(camera_name)
+    
     alert_data = {
         'message': data.get('message', 'New alert'),
         'severity': data.get('severity', 'info'),
-        'camera_name': data.get('camera_name'),
-        'timestamp': data.get('timestamp')
+        'camera_name': camera_name,
+        'timestamp': data.get('timestamp'),
+        'org_id': org_id
     }
     
-    count = emit_alert(alert_data)
+    count = emit_alert(alert_data, org_id=org_id)
     
     # Log alert emission
     user = get_current_user()
@@ -311,11 +324,16 @@ def sse_emit_camera_status():
     
     camera_name = data.get('camera_name')
     status = data.get('status', 'unknown')
+    org_id = data.get('org_id')
     
     if not camera_name:
         raise ValidationError("camera_name is required")
+        
+    if not org_id:
+        from ai_model_server import get_org_id_for_camera
+        org_id = get_org_id_for_camera(camera_name)
     
-    count = emit_camera_status(camera_name, status)
+    count = emit_camera_status(camera_name, status, org_id=org_id)
     
     # Log camera status update
     user = get_current_user()

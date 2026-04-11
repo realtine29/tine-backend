@@ -34,8 +34,7 @@ def init_rate_limiter(app: Flask) -> Limiter:
         key_func=get_remote_address,
         default_limits=["10000 per day", "2500 per hour"],
         storage_uri="memory://",
-        strategy="fixed-window",
-        request_filter=lambda: request.method == "OPTIONS"
+        strategy="fixed-window"
     )
     
     return limiter

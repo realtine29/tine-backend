@@ -14,6 +14,7 @@ import cloudinary
 import cloudinary.uploader
 import cloudinary.api
 import smtplib
+import shutil
 from datetime import datetime
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -77,8 +78,8 @@ except ImportError:
 
 ENABLE_EMAILS = True 
 
-EMAIL_SENDER = os.environ.get('EMAIL_SENDER', 'realinochristine55@gmail.com')
-EMAIL_PASSWORD = os.environ.get('EMAIL_PASSWORD', 'bjfy wynj mxtl mjux') 
+EMAIL_SENDER = os.environ.get('EMAIL_SENDER', 'christinerealino6@gmail.com')
+EMAIL_PASSWORD = os.environ.get('EMAIL_PASSWORD', 'hexy ofyf kctc ardx') 
 
 ANOMALY_MODEL_PATH = 'anomaly_detector.keras'
 STEALING_MODEL_PATH = 'stealing_classifier.keras'
@@ -86,6 +87,8 @@ YOLO_MODEL = 'yolov8n-pose.pt'
 
 LOG_FILE = "ai_model/detections_log.json"
 OUTPUT_DIR = "ai_model/detections"
+RAW_RECORDING_DIR = os.environ.get('RAW_RECORDING_DIR', 'D:/CCTV_Record')
+ENABLE_RAW_RECORDING = os.environ.get('ENABLE_RAW_RECORDING', 'True').lower() == 'true'
 
 # THRESHOLDS 
 POSE_THRESHOLD = 0.18       
@@ -106,7 +109,7 @@ SCAN_LEN = SCAN_WINDOW_SEC * FPS_ESTIMATE
 
 LOGIC_SKIP = 2 
 
-ALERT_MAX_DURATION = 15.0           
+ALERT_MAX_DURATION = 10.0           
 ROUTINE_COOLDOWN = 20.
 DEBUG_MODE = True 
 
@@ -114,7 +117,7 @@ DEBUG_MODE = True
 #  VIDEO CONFIGURATION 
 TARGET_FPS = 30.0               
 FRAME_DELAY = 1.0 / TARGET_FPS 
-BUFFER_SECONDS = 30              
+BUFFER_SECONDS = 20              
 BUFFER_SIZE = int(TARGET_FPS * BUFFER_SECONDS)
 
 # Global flag for email limit
@@ -158,7 +161,8 @@ validator = BehaviorValidator()
 
 #  INITIALIZATION
 app = Flask(__name__)
-CORS(app)
+# Explicitly allow CORS for the frontend origin
+CORS(app, resources={r"/*": {"origins": "*"}})
 
 # Initialize security modules if available
 if SECURITY_AVAILABLE:
@@ -178,6 +182,7 @@ def add_youtube():
     user_id = data.get("userId")
     camera_name = data.get("cameraName")
     youtube_url = data.get("youtubeUrl")
+    org_id = data.get("org_id") # Get org_id from frontend
 
     if not all([user_id, camera_name, youtube_url]):
         return {"error": "Missing data"}, 400
@@ -195,7 +200,12 @@ def add_youtube():
     try:
         print(f"[INFO] Extracting stream URL for: {youtube_url}")
         # We prefer a lower resolution like 480p or 720p for faster AI processing
-        ydl_opts = {'format': 'best[height<=720]/best', 'quiet': True} 
+        ydl_opts = {
+            'format': 'best[height<=720][ext=mp4]/best[ext=mp4]/best',
+            'quiet': True,
+            'no_warnings': True,
+            'nocheckcertificate': True
+        } 
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(youtube_url, download=False)
             raw_stream_url = info['url']
@@ -203,16 +213,16 @@ def add_youtube():
         print(f"!! Failed to extract YouTube stream: {e}")
         return {"error": "Failed to extract stream from this YouTube link. It might be private or age-restricted."}, 500
 
-    # Kuhanin ang org_id ng user
-    org_id = None
-    try:
-        user_doc = db.collection("users").document(user_id).get()
-        if user_doc.exists:
-            org_id = user_doc.to_dict().get("org_id", None)
-    except: pass
+    # Fallback lookup if frontend didn't send org_id
+    if not org_id or org_id == "default":
+        try:
+            user_doc = db.collection("users").document(user_id).get()
+            if user_doc.exists:
+                org_id = user_doc.to_dict().get("org_id", None)
+        except: pass
 
     # 2. Add camera to memory using the RAW stream URL
-    cameras_dict[camera_name] = RTSPVideoStream(raw_stream_url, original_url=youtube_url, name=camera_name, is_youtube=True)
+    cameras_dict[camera_name] = RTSPVideoStream(raw_stream_url, original_url=youtube_url, name=camera_name, is_youtube=True, org_id=org_id)
 
     # 3. Save to Firestore (We save the original YouTube URL, not the raw one)
     db.collection("cameras").add({
@@ -233,6 +243,7 @@ def add_camera():
     user_id = data.get("userId")
     camera_name = data.get("cameraName")
     rtsp_url = data.get("rtspUrl")
+    org_id = data.get("org_id") # Get org_id from frontend
 
     if not all([user_id, camera_name, rtsp_url]):
         return {"error": "Missing data"}, 400
@@ -254,16 +265,16 @@ def add_camera():
     if any(query_rtsp):
         return {"error": "This RTSP URL already exists in database"}, 400
 
-    # Kuhanin ang org_id ng user
-    org_id = None
-    try:
-        user_doc = db.collection("users").document(user_id).get()
-        if user_doc.exists:
-            org_id = user_doc.to_dict().get("org_id", None)
-    except: pass
+    # Fallback lookup if frontend didn't send org_id
+    if not org_id or org_id == "default":
+        try:
+            user_doc = db.collection("users").document(user_id).get()
+            if user_doc.exists:
+                org_id = user_doc.to_dict().get("org_id", None)
+        except: pass
 
     # Add camera to memory
-    cameras_dict[camera_name] = RTSPVideoStream(rtsp_url, name=camera_name)
+    cameras_dict[camera_name] = RTSPVideoStream(rtsp_url, name=camera_name, org_id=org_id)
 
     # Save to Firestore
     db.collection("cameras").add({
@@ -288,72 +299,185 @@ db = firestore.client()
 # VIDEO STREAM CLASS
 
 
+class RawRecorder:
+    def __init__(self, camera_name, storage_path, org_id="default", fps=15.0):
+        self.camera_name = camera_name
+        self.storage_path = storage_path
+        self.org_id = org_id or "default"
+        self.fps = fps
+        self.writer = None
+        self.current_day = None
+
+    def _get_filename(self):
+        # Creates a filename like: D:/CCTV_Record/org123/Camera1/2026-03-27/09_30_05.webm
+        now = datetime.now()
+        day_str = now.strftime("%Y-%m-%d")
+        time_str = now.strftime("%H_%M_%S")
+        
+        # Ensure directory exists for this org, camera and day
+        path = os.path.join(self.storage_path, self.org_id, self.camera_name, day_str)
+        os.makedirs(path, exist_ok=True)
+        
+        return os.path.join(path, f"{time_str}.webm")
+
+    def write(self, frame):
+        if frame is None: return
+        
+        try:
+            # --- ADD TIMESTAMP OVERLAY ---
+            h, w = frame.shape[:2]
+            # Copy frame to avoid modifying the original used by AI
+            stamped_frame = frame.copy()
+            timestamp_text = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            
+            # Black background rectangle for the clock
+            cv2.rectangle(stamped_frame, (10, h - 35), (280, h - 5), (0, 0, 0), -1)
+            # White text
+            cv2.putText(stamped_frame, timestamp_text, (20, h - 12), 
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2, cv2.LINE_AA)
+
+            now = datetime.now()
+            today = now.strftime("%Y%m%d")
+            
+            # --- TEST MODE: Rotate every 5 minutes ---
+            current_period = f"{today}_{now.hour}_{now.minute // 5}"
+
+            # Rotate file if period changes or writer isn't initialized
+            if self.writer is None or current_period != getattr(self, 'current_period', None):
+                if self.writer: 
+                    self.writer.release()
+                    print(f"[RECORDER] Released previous file for {self.camera_name}")
+                
+                self.current_period = current_period
+                self.current_day = today
+                filename = self._get_filename()
+                
+                # Check if path is writable
+                path = os.path.dirname(filename)
+                if not os.path.exists(path):
+                    os.makedirs(path, exist_ok=True)
+                
+                # Use VP80 (WebM) for maximum browser compatibility without DLL issues
+                fourcc = cv2.VideoWriter_fourcc(*'VP80')
+                self.writer = cv2.VideoWriter(filename, fourcc, self.fps, (w, h))
+                
+                if self.writer.isOpened():
+                    print(f"✅ [RECORDER] Started web-compatible recording (.webm): {filename}")
+                else:
+                    print(f"⚠️ [RECORDER] VP80 codec failed, falling back to mp4v...")
+                    fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+                    filename_mp4 = filename.replace('.webm', '.mp4')
+                    self.writer = cv2.VideoWriter(filename_mp4, fourcc, self.fps, (w, h))
+                    if self.writer.isOpened():
+                        print(f"✅ [RECORDER] Started recording with mp4v: {filename_mp4}")
+                    else:
+                        print(f"❌ [RECORDER] Failed to open VideoWriter for {filename}")
+                        self.writer = None
+
+            if self.writer:
+                self.writer.write(stamped_frame)
+                
+        except Exception as e:
+            print(f"❌ [RECORDER] Critical Error writing for {self.camera_name}: {e}")
+            if self.writer:
+                self.writer.release()
+                self.writer = None
+
+    def release(self):
+        if self.writer:
+            self.writer.release()
+            self.writer = None
+
+
 class RTSPVideoStream:
-    # We added an 'original_url' and 'is_youtube' parameter here
-    def __init__(self, src, original_url=None, name=None, is_youtube=False):
+    def __init__(self, src, original_url=None, name=None, is_youtube=False, org_id="default"):
         self.src = src
-        # Kailangan i-save ang original link para may magamit ang get_fresh_url
         self.original_url = original_url if original_url else src 
         self.name = name
         self.is_youtube = is_youtube
-        self.cap = cv2.VideoCapture(self.src, cv2.CAP_FFMPEG)
+        self.org_id = org_id
+        
+        # Start with a dummy state to allow frontend to request the feed
         self.ret = False
         self.frame = None
         self.stopped = False
-        self.online = self.cap.isOpened()
+        self.online = True # Assume online if we got this far with a URL
+        
+        # Initialize capture
+        print(f"[INFO] Initializing stream for {self.name}...")
+        self.cap = cv2.VideoCapture(self.src, cv2.CAP_FFMPEG)
         
         # --- NEW: Get video FPS to pace the playback ---
         self.fps = self.cap.get(cv2.CAP_PROP_FPS)
+        if not self.fps or self.fps <= 0 or self.fps > 120:
+            self.fps = 30.0
         self.frame_delay = 1.0 / self.fps
-        if not self.fps or self.fps <= 0:
-            self.fps = self.cap.get(cv2.CAP_PROP_FPS)
-                    # Fix: Kapag nagbigay ng corrupted/extreme FPS ang YouTube, ibalik sa 30fps
-            if not self.fps or self.fps <= 0 or self.fps > 120:
-                    self.fps = 30.0
-        # -----------------------------------------------
+
+        # --- RAW RECORDER INITIALIZATION ---
+        self.recorder = None
+        if ENABLE_RAW_RECORDING:
+            self.recorder = RawRecorder(self.name, RAW_RECORDING_DIR, org_id=self.org_id, fps=self.fps)
         
         threading.Thread(target=self.update, daemon=True).start()
 
     def get_fresh_url(self):
-        print(f"[INFO] Fetching a fresh token for YouTube stream: {self.name}...")
+        print(f"[INFO] Refreshing YouTube stream for: {self.name}...")
         try:
             import yt_dlp
-            ydl_opts = {'format': 'best[height<=720]/best', 'quiet': True, 'extract_flat': False}
+            ydl_opts = {
+                'format': 'best[ext=mp4][height<=720]/best[ext=mp4]/best',
+                'quiet': True,
+                'no_warnings': True,
+                'nocheckcertificate': True,
+                'extract_flat': False,
+                'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+            }
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                 info = ydl.extract_info(self.original_url, download=False)
                 return info.get('url')
         except Exception as e:
-            print(f"!! Failed to refresh URL: {e}")
+            print(f"!! Failed to refresh URL for {self.name}: {e}")
             return self.src
 
     def update(self):
+        frame_count = 0
+        error_count = 0
         while not self.stopped:
-            if self.cap.isOpened():
+            if self.cap is not None and self.cap.isOpened():
                 ret, frame = self.cap.read()
                 if ret:
                     self.ret = True
                     self.frame = frame
                     self.online = True
+                    error_count = 0
+                    frame_count += 1
+                    if frame_count % 100 == 0:
+                        print(f"[DEBUG] {self.name}: Received {frame_count} frames.")
+
+                    if self.recorder:
+                        self.recorder.write(frame)
+
                     if self.is_youtube:
                         time.sleep(self.frame_delay)
                 else:
+                    error_count += 1
                     self.ret = False
-                    self.online = False
-                    print(f"⚠️ Stream lost for {self.name} – reconnecting...")
-                    self.cap.release()
-                    time.sleep(2)
-                    
-                    # Kukuha muna ng bagong link kung YouTube ito bago mag-reconnect
-                    reconnect_url = self.get_fresh_url() if self.is_youtube else self.src
-                    self.cap = cv2.VideoCapture(reconnect_url, cv2.CAP_FFMPEG)
+                    if error_count > 10:
+                        self.online = False
+                        print(f"⚠️ Stream connection lost for {self.name} - retrying...")
+                        self.cap.release()
+                        time.sleep(2)
+                        reconnect_url = self.get_fresh_url() if self.is_youtube else self.src
+                        self.cap = cv2.VideoCapture(reconnect_url, cv2.CAP_FFMPEG)
             else:
-                self.cap.release()
-                time.sleep(2)
+                if self.cap: self.cap.release()
+                time.sleep(3)
+                print(f"[INFO] Attempting to connect to {self.name}...")
                 reconnect_url = self.get_fresh_url() if self.is_youtube else self.src
                 self.cap = cv2.VideoCapture(reconnect_url, cv2.CAP_FFMPEG)
                 self.online = self.cap.isOpened()
                 if self.online:
-                    print(f"✅ Camera {self.name} reconnected!")
+                    print(f"✅ Camera {self.name} connected!")
 
     def read(self):
         if not self.cap.isOpened():
@@ -374,7 +498,30 @@ def load_cameras_from_firestore():
             camera_name = data.get("name")        
             rtsp_url = data.get("rtsp_url")
             # Check if this camera was flagged as a YouTube stream when it was added
-            is_youtube = data.get("is_youtube", False) 
+            is_youtube = data.get("is_youtube", False)
+
+            # FIX: Kung null ang org_id sa Firestore, hanapin sa owner ng camera
+            # Dati: data.get("org_id", "default") — agad "default" kahit may owner
+            org_id = data.get("org_id") or None
+            if not org_id or org_id == "default":
+                owner_uid = data.get("owner")
+                if owner_uid:
+                    try:
+                        user_doc = db.collection("users").document(owner_uid).get()
+                        if user_doc.exists:
+                            org_id = user_doc.to_dict().get("org_id") or "default"
+                            print(f"[LOAD] Resolved org_id from owner for '{camera_name}': {org_id}")
+                        # Also fix the camera doc in Firestore so next load is instant
+                        if org_id and org_id != "default":
+                            cam_docs = db.collection("cameras").where("name", "==", camera_name).limit(1).stream()
+                            for cam_doc in cam_docs:
+                                cam_doc.reference.update({"org_id": org_id})
+                                print(f"[LOAD] Auto-fixed org_id in Firestore for camera '{camera_name}'")
+                    except Exception as e:
+                        print(f"[LOAD] Could not resolve org_id from owner for '{camera_name}': {e}")
+            if not org_id:
+                org_id = "default"
+            print(f"[LOAD] Camera '{camera_name}' → org_id: {org_id}")
 
             if not camera_name or not rtsp_url:
                 print("⚠️ Skipping invalid camera document:", data)
@@ -384,18 +531,23 @@ def load_cameras_from_firestore():
                 # It's a YouTube link, so we need to extract a FRESH raw stream URL
                 print(f"[INFO] Fetching fresh YouTube stream for: {camera_name}...")
                 try:
-                    ydl_opts = {'format': 'best[height<=720]/best', 'quiet': True}
+                    ydl_opts = {
+                        'format': 'best[height<=720][ext=mp4]/best[ext=mp4]/best',
+                        'quiet': True,
+                        'no_warnings': True,
+                        'nocheckcertificate': True
+                    } 
                     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                         info = ydl.extract_info(rtsp_url, download=False)
                         fresh_stream_url = info['url']
                         
-                        cameras[camera_name] = RTSPVideoStream(fresh_stream_url, name=camera_name, is_youtube=True)
+                        cameras[camera_name] = RTSPVideoStream(fresh_stream_url, original_url=rtsp_url, name=camera_name, is_youtube=True, org_id=org_id)
                         print(f"✅ Loaded YouTube camera: {camera_name}")
                 except Exception as e:
                     print(f"❌ Failed to refresh YouTube camera '{camera_name}'. The video might be offline: {e}")
             else:
                 # It's a normal RTSP camera, load it directly
-                cameras[camera_name] = RTSPVideoStream(rtsp_url, name=camera_name)
+                cameras[camera_name] = RTSPVideoStream(rtsp_url, name=camera_name, org_id=org_id)
                 print(f"✅ Loaded RTSP camera: {camera_name}")
 
         except Exception as e:
@@ -409,9 +561,9 @@ cameras_dict = load_cameras_from_firestore()
 
 
 cloudinary.config(
-    cloud_name=os.environ.get('CLOUDINARY_CLOUD_NAME', 'dpkds0mpw'),
-    api_key=os.environ.get('CLOUDINARY_API_KEY', '573419718341736'),
-    api_secret=os.environ.get('CLOUDINARY_API_SECRET', 'wFzLdsZ_O9vLiZKP2bvZCN_XGjA'),
+    cloud_name=os.environ.get('CLOUDINARY_CLOUD_NAME', 'dog6t9mx5'),
+    api_key=os.environ.get('CLOUDINARY_API_KEY', '275631287775487'),
+    api_secret=os.environ.get('CLOUDINARY_API_SECRET', '-41zZjN0GR1xVpx5lhBjvomKDAM'),
     secure=True
 )
 
@@ -431,75 +583,164 @@ except Exception as e:
 
 # HELPER FUNCTIONS
 def get_user_emails_by_org(org_id):
-    """Kukunin lang ang emails ng STANDARD USERS (hindi admin) na nasa parehong org_id."""
+    """Kukunin lang ang emails ng STANDARD USERS (role='user') na nasa parehong org_id."""
     emails = []
-    try:
-        if org_id:
-            users_ref = db.collection("users").where("role", "==", "user").where("org_id", "==", org_id).stream()
-        else:
-            users_ref = db.collection("users").where("role", "==", "user").stream()
+    print(f"[EMAIL-DEBUG] Searching users for Org ID: {org_id}")
+    
+    if not org_id or org_id == "none" or org_id == "default":
+        print(f"[EMAIL] Invalid or missing Org ID: {org_id}. Cannot fetch emails.")
+        return emails
         
+    try:
+        # Use only one 'where' to match your existing Firestore index
+        # and filter the role manually in Python for better reliability
+        users_ref = db.collection("users").where("org_id", "==", org_id).stream()
+        
+        found_users = 0
         for doc in users_ref:
             user_data = doc.to_dict()
-            if "email" in user_data:
-                emails.append(user_data["email"])
+            # Strict check: Only include users with role 'user'
+            if user_data.get("role") == "user":
+                found_users += 1
+                if "email" in user_data:
+                    emails.append(user_data["email"])
+        
+        print(f"[EMAIL-DEBUG] Found {found_users} users with role='user' in Org {org_id}. Emails collected: {len(emails)}")
+        
+        # Log if no standard users found
+        if found_users == 0:
+            print(f"[EMAIL] Warning: No users found with role='user' and org_id='{org_id}'.")
+            # Extra check: are there ANY users in this org?
+            all_org_users = db.collection("users").where("org_id", "==", org_id).limit(5).stream()
+            any_user = [d.to_dict().get('role') for d in all_org_users]
+            if any_user:
+                print(f"[EMAIL-DEBUG] Org '{org_id}' has users with roles: {any_user}. (Only role='user' is allowed for alerts)")
+            else:
+                print(f"[EMAIL-DEBUG] Org '{org_id}' appears to have NO users registered at all.")
+
     except Exception as e: 
-        print(f"!! Error fetching emails: {e}")
+        print(f"!! Error fetching emails for Org {org_id}: {e}")
     return emails
 
-def send_email_alert(label, cloud_url, camera_name):
+def send_email_alert(label, cloud_url, camera_name, org_id=None):
     global EMAIL_LIMIT_REACHED
-    if not ENABLE_EMAILS or EMAIL_LIMIT_REACHED: return
+    if not ENABLE_EMAILS or EMAIL_LIMIT_REACHED: 
+        print(f"[EMAIL] Email sending skipped. ENABLE_EMAILS={ENABLE_EMAILS}, LIMIT_REACHED={EMAIL_LIMIT_REACHED}")
+        return
     
-    org_id = get_org_id_for_camera(camera_name)
-    recipient_list = get_user_emails_by_org(org_id)
+    # Priority: passed org_id, then lookup from camera
+    target_org = org_id or get_org_id_for_camera(camera_name)
+    print(f"[EMAIL-DEBUG] Attempting to send alert for {camera_name} in Org: {target_org}")
+    
+    recipient_list = get_user_emails_by_org(target_org)
     
     if not recipient_list: 
-        print(f"[EMAIL] No standard users found for Org ID: {org_id}. Skipping email.")
+        print(f"[EMAIL] No standard users (role='user') found for Org ID: {target_org}. Skipping email.")
         return
         
     try:
+        print(f"[EMAIL] Connecting to SMTP server for {len(recipient_list)} recipient(s)...")
         server = smtplib.SMTP('smtp.gmail.com', 587)
         server.starttls()
         server.login(EMAIL_SENDER, EMAIL_PASSWORD)
+        
         for email in recipient_list:
             msg = MIMEMultipart()
             msg['From'] = f"Security System <{EMAIL_SENDER}>"
             msg['To'] = email
-            msg['Subject'] = f" ALERT: {label} Detected!"
-            body = f"Incident: {label}<br>Camera: {camera_name}<br>View Evidence: <a href='{cloud_url}'>Click Here</a>"
+            msg['Subject'] = f"🚨 ALERT: {label} Detected!"
+            
+            body = f"""
+            <html>
+            <body>
+                <h2 style='color: #dc2626;'>Security Alert Detected</h2>
+                <p><b>Incident Type:</b> {label}</p>
+                <p><b>Camera Name:</b> {camera_name}</p>
+                <p><b>Organization ID:</b> {target_org}</p>
+                <p><b>Time Detected:</b> {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</p>
+                <hr>
+                <p>You can view the detected video clip here:</p>
+                <a href='{cloud_url}' style='background-color: #7c3aed; color: white; padding: 10px 20px; text-decoration: none; border-radius: 8px; font-weight: bold;'>View Evidence Clip</a>
+                <p style='font-size: 12px; color: #6b7280; margin-top: 20px;'>This is an automated message from your Anomaly Detection System.</p>
+            </body>
+            </html>
+            """
             msg.attach(MIMEText(body, 'html'))
             server.send_message(msg)
+            print(f"[EMAIL] Alert successfully sent to: {email}")
+            
         server.quit()
-        print(f"[EMAIL] Sent successfully to {len(recipient_list)} user(s).")
+        print(f"[EMAIL] All emails sent successfully for Org: {target_org}.")
     except Exception as e: 
         print(f"!! SMTP Failed: {e}")
         if "limit" in str(e).lower() or "5.4.5" in str(e):
             EMAIL_LIMIT_REACHED = True
+            print("!! EMAIL LIMIT REACHED. System will stop sending emails for this session.")
 
 def get_org_id_for_camera(camera_name):
-    """Kukunin ang org_id ng camera mula sa Firestore."""
+    """Kukunin ang org_id ng camera mula sa memory o Firestore.
+    FIX: Nag-aayos na rin ng null org_id sa Firestore nang automatic.
+    """
+    # 0. PINAKA-MAAASAHAN: I-check ang in-memory cameras_dict muna
+    # Ito ang pinakamabilis at hindi na kailangan pang mag-query sa Firestore
+    if camera_name in cameras_dict:
+        cam = cameras_dict[camera_name]
+        if hasattr(cam, 'org_id') and cam.org_id and cam.org_id not in ("default", "none", None):
+            return cam.org_id
+
+    resolved_org_id = None
+
     try:
-        # Check cameras collection first
-        docs = db.collection("cameras").where("name", "==", camera_name).limit(1).stream()
-        for doc in docs:
-            data = doc.to_dict()
-            # Try to get org_id directly from camera doc first
-            if "org_id" in data and data["org_id"]:
-                return data["org_id"]
-            
-            # Fallback to owner's org_id if not directly on camera
-            owner_uid = data.get("owner")
-            if owner_uid:
-                user_doc = db.collection("users").document(owner_uid).get()
-                if user_doc.exists:
-                    return user_doc.to_dict().get("org_id", "default")
+        # 1. Try by document ID
+        doc_ref = db.collection("cameras").document(camera_name).get()
+        if doc_ref.exists:
+            data = doc_ref.to_dict()
+            org_id = data.get("org_id")
+            if org_id and org_id not in ("default", "none"):
+                resolved_org_id = org_id
+            else:
+                # Walang org_id — hanapin sa owner
+                owner_uid = data.get("owner")
+                if owner_uid:
+                    user_doc = db.collection("users").document(owner_uid).get()
+                    if user_doc.exists:
+                        resolved_org_id = user_doc.to_dict().get("org_id")
+                        # Auto-fix ang Firestore para hindi na paulit-ulit ang lookup
+                        if resolved_org_id:
+                            doc_ref.reference.update({"org_id": resolved_org_id})
+                            print(f"[ORG-FIX] Auto-fixed org_id for camera '{camera_name}': {resolved_org_id}")
+
+        # 2. Try by 'name' field (ang paraan ng pag-save ng ai_model_server)
+        if not resolved_org_id:
+            docs = db.collection("cameras").where("name", "==", camera_name).limit(1).stream()
+            for doc in docs:
+                data = doc.to_dict()
+                org_id = data.get("org_id")
+                if org_id and org_id not in ("default", "none"):
+                    resolved_org_id = org_id
+                else:
+                    owner_uid = data.get("owner")
+                    if owner_uid:
+                        user_doc = db.collection("users").document(owner_uid).get()
+                        if user_doc.exists:
+                            resolved_org_id = user_doc.to_dict().get("org_id")
+                            # Auto-fix ang Firestore
+                            if resolved_org_id:
+                                doc.reference.update({"org_id": resolved_org_id})
+                                print(f"[ORG-FIX] Auto-fixed org_id for camera '{camera_name}' (by name): {resolved_org_id}")
+
     except Exception as e:
         print(f"!! Error getting org_id for {camera_name}: {e}")
-    return "default"
+
+    # I-update din ang in-memory camera object para hindi na mag-lookup ulit
+    if resolved_org_id and camera_name in cameras_dict:
+        cameras_dict[camera_name].org_id = resolved_org_id
+        print(f"[ORG-FIX] Updated in-memory org_id for '{camera_name}': {resolved_org_id}")
+
+    return resolved_org_id or "none"
 
 
-def save_to_firebase(label, cloud_url, confidence_score, camera_name):
+def save_to_firebase(label, cloud_url, confidence_score, camera_name, track_id=None, org_id=None):
     try:
                 MODEL_TRAINING_ACCURACY = 0.89 
                 
@@ -513,7 +754,11 @@ def save_to_firebase(label, cloud_url, confidence_score, camera_name):
                     conf_str = f"{conf_pct}% (LOW)"
 
                 local_timestamp  = datetime.now()
-                org_id           = get_org_id_for_camera(camera_name)
+                # Use provided org_id or lookup as fallback
+                # CRITICAL FIX: Ensure final_org_id is NEVER "none" as it breaks fetching
+                final_org_id = org_id or get_org_id_for_camera(camera_name)
+                if not final_org_id or final_org_id == "none":
+                    final_org_id = "default"
 
                 db.collection("detections").add({
                     "camera_name": camera_name,
@@ -523,20 +768,19 @@ def save_to_firebase(label, cloud_url, confidence_score, camera_name):
                     "confidence":  conf_str,
                     "timestamp":   local_timestamp,
                     "created_at":  firestore.SERVER_TIMESTAMP,
-                    "org_id":      org_id,
-                    "duration":    f"{ALERT_MAX_DURATION}s"
+                    "org_id":      final_org_id,
+                    "duration":    f"{ALERT_MAX_DURATION}s",
+                    "track_id":    track_id
                 })
-                print(f"[FIREBASE] Alert log sent successfully for {camera_name} ({label})")
+                print(f"[FIREBASE] Alert log sent successfully for {camera_name} ({label}) | ID: {track_id} | Org: {final_org_id}")
     except Exception as e:
         print(f"!! Firebase Error: {e}")
 
 
-def save_alert_clip(frame_buffer, label, track_id, confidence_score, fps=30, suspect_count=1, camera_name=""):
+def save_alert_clip(sliced_frames, label, track_id, confidence_score, fps=30, suspect_count=1, camera_name="", org_id=None):
     try:
-        # Calculate how many frames represent the exact duration
-        max_frames = int(fps * ALERT_MAX_DURATION)
-        frames = list(frame_buffer)[-max_frames:]
-        if not frames: return
+        if not sliced_frames: return
+        frames = list(sliced_frames)
 
         ts_display = time.strftime("%Y-%m-%d %H:%M:%S")
         ts_file = time.strftime("%Y%m%d_%H%M%S")
@@ -563,22 +807,25 @@ def save_alert_clip(frame_buffer, label, track_id, confidence_score, fps=30, sus
         font = cv2.FONT_HERSHEY_SIMPLEX
         font_scale = 0.45 
         font_thick = 1
+        
+        MODEL_TRAINING_ACCURACY = 0.89 
 
         for f in frames:
             frame_out = f.copy()
             cv2.rectangle(frame_out, (0, h - header_h), (w, h), overlay_color, -1)
-            header_text = f"{ts_display} | ID:{track_id} {label} | CONF:{confidence_score}% | SUSPECTS:{suspect_count}"
+            # Added ACC (Accuracy) to the header text
+            header_text = f"{ts_display} | ID:{track_id} {label} | ACC:{int(MODEL_TRAINING_ACCURACY*100)}% | CONF:{confidence_score}%"
             (text_w, text_h), baseline = cv2.getTextSize(header_text, font, font_scale, font_thick)
             cv2.putText(frame_out, header_text, (10, h - int((header_h - text_h) / 2) - 5), font, font_scale, text_color, font_thick, cv2.LINE_AA)
             out.write(frame_out)
             
         out.release()
-        time.sleep(1.0) # Binawasan natin ang sleep para mas mabilis
+        time.sleep(0.3) # Binawasan natin ang sleep para mas mabilis
         
         # 1. Cloudinary Upload
         playable_url = None
         if os.path.exists(fn) and os.path.getsize(fn) > 0:
-            print(f"[UPLOAD] Uploading ID {track_id} video to Cloudinary...")
+            print(f"[UPLOAD] File found: {fn} ({os.path.getsize(fn)} bytes). Uploading to Cloudinary...")
             upload_success = False
             attempts = 0
             res = None
@@ -588,8 +835,13 @@ def save_alert_clip(frame_buffer, label, track_id, confidence_score, fps=30, sus
                     res = cloudinary.uploader.upload(fn, resource_type="video", folder=f"ai_detections/{camera_name}")
                     upload_success = True
                 except Exception as e: 
-                    print(f"Cloudinary attempt {attempts} failed: {e}")
-                    time.sleep(3)
+                    print(f"!! [CLOUDINARY-ERROR] Attempt {attempts} failed: {str(e)}")
+                    # Check for common issues
+                    if "unauthorized" in str(e).lower():
+                        print("!! [DEBUG] Check your API Key and Secret. They may be incorrect.")
+                    elif "not found" in str(e).lower():
+                        print("!! [DEBUG] Cloud name might be incorrect.")
+                    time.sleep(2)
                     
             if upload_success and res:
                 raw_url = res.get("secure_url")
@@ -607,16 +859,18 @@ def save_alert_clip(frame_buffer, label, track_id, confidence_score, fps=30, sus
                             "track_id": track_id,
                             "suspects": suspect_count,
                             "timestamp": ts_display,
-                            "org_id": get_org_id_for_camera(camera_name)
-                        })
+                            "org_id": org_id or get_org_id_for_camera(camera_name)
+                        }, org_id=org_id)
+        else:
+            print(f"!! [UPLOAD-ERROR] File not found or empty: {fn}")
                     
-        # 2. Save to Firebase (ITO YUNG PUMAPASOK SA DASHBOARD LOGS)
-        save_to_firebase(label, playable_url, confidence_score, camera_name) 
+        # 2. Save to Firebase (Passing track_id AND org_id now!)
+        save_to_firebase(label, playable_url, confidence_score, camera_name, track_id=track_id, org_id=org_id) 
                     
         # 3. Send Email (Para sa Standard Users lang)
         if playable_url and ENABLE_EMAILS and 'EMAIL_LIMIT_REACHED' in globals() and not EMAIL_LIMIT_REACHED:
             if confidence_score >= 50: 
-                send_email_alert(label, playable_url, camera_name)
+                send_email_alert(label, playable_url, camera_name, org_id=org_id)
                             
     except Exception as e: 
         print(f"!! Critical Error in save_alert_clip: {e}")
@@ -677,37 +931,65 @@ def is_hand_in_stashing_zone(kpts, h_px):
 # MAIN LOGIC LOOP
 people_states = {}
 
+# --- HELPER FOR DYNAMIC RECORDING & SNAPSHOTS ---
+def trigger_dynamic_save(person, track_id, camera_name, org_id, fps):
+    frames = person.get('recording_frames', [])
+    label = person.get('recording_label', 'Anomaly')
+    acc = person.get('recording_acc', 0)
+    suspects = person.get('recording_suspects', 1)
+    
+    person['is_recording'] = False
+    person['recording_frames'] = []
+    person['last_save_time'] = time.time()
+    
+    if len(frames) < 15: return
+    
+    print(f"🎬 [FINALIZING CLIP] ID:{track_id} | Type:{label} | Duration:~{len(frames)/fps:.1f}s")
+    threading.Thread(target=save_alert_clip, 
+                      args=(frames, label, track_id, acc, fps, suspects, camera_name, org_id)).start()
+
+def save_instant_snapshot(frame, camera_name, org_id, label, track_id):
+    """Saves and uploads a single frame immediately when detection starts."""
+    try:
+        os.makedirs(OUTPUT_DIR, exist_ok=True)
+        ts = time.strftime("%Y%m%d_%H%M%S")
+        fn = f"{OUTPUT_DIR}/snap_{camera_name}_{track_id}_{ts}.jpg"
+        cv2.imwrite(fn, frame)
+        
+        # Background upload
+        def upload_task():
+            try:
+                res = cloudinary.uploader.upload(fn, folder=f"ai_detections/{camera_name}/snapshots")
+                print(f"📸 [SNAPSHOT READY] {res.get('secure_url')}")
+            except: pass
+        threading.Thread(target=upload_task).start()
+    except: pass
+
 def gen_frames(camera_name):
     camera = cameras_dict.get(camera_name)
-    if not camera:
-        print(f"Camera '{camera_name}' not found.")
-        return
+    if not camera: return
     
     frame_buffer = deque(maxlen=BUFFER_SIZE)
     frame_count = 0
-    LOGIC_SKIP = 2 
-    
     prev_frame_time = 0
-    new_frame_time = 0
     real_time_fps = 15.0 
     last_processed_frame = None
     
     while True:
         ret, frame = camera.read()
         if not ret or frame is None:
-            time.sleep(0.05)
-            continue
+            time.sleep(0.05); continue
         if frame is last_processed_frame:
-            time.sleep(0.01) 
-            continue
+            time.sleep(0.01); continue
         last_processed_frame = frame
         
+        # Calculate dynamic FPS for smooth video writing
         new_frame_time = time.time()
         if prev_frame_time > 0:
-            fps_instant = 1 / (new_frame_time - prev_frame_time)
-            real_time_fps = 0.9 * real_time_fps + 0.1 * fps_instant
+            real_time_fps = 0.9 * real_time_fps + 0.1 * (1 / (new_frame_time - prev_frame_time))
         prev_frame_time = new_frame_time
 
+        # Resize for AI speed
         orig_h, orig_w = frame.shape[:2]
         target_w = 640
         target_h = int(orig_h * (target_w / orig_w))
@@ -715,7 +997,8 @@ def gen_frames(camera_name):
         height, width = frame.shape[:2]
         
         results = yolo_model.track(frame, persist=True, verbose=False, classes=[0], conf=0.45)
-       
+        active_ids_this_frame = []
+    
         if results and results[0].boxes.id is not None:
             boxes = results[0].boxes.xyxy.cpu().numpy()
             track_ids = results[0].boxes.id.int().cpu().tolist()
@@ -723,180 +1006,119 @@ def gen_frames(camera_name):
             confidences = results[0].boxes.conf.cpu().numpy()
                 
             for box, track_id, kpts, y_conf in zip(boxes, track_ids, keypoints, confidences):
+                active_ids_this_frame.append(track_id)
                 kpts_flat = kpts.flatten()
                 
                 if track_id not in people_states:
                     people_states[track_id] = {
-                        'pose_seq': [], 
-                        'loc_hist': deque(maxlen=HISTORY_LEN),
-                        'scan_hist': deque(maxlen=SCAN_LEN),
-                        'stationary_counter': 0,
-                        'alert_start_time': 0,
+                        'pose_seq': [], 'loc_hist': deque(maxlen=HISTORY_LEN),
+                        'scan_hist': deque(maxlen=SCAN_LEN), 'stationary_counter': 0,
                         'current_label': "Normal", 'current_color': (0, 255, 0),
                         'smoothed_box': box, 'current_acc': 0,
                         'last_lstm_err': 0.0, 'last_steal_prob': 0.0,
-                        'last_save_time': 0,
-                        'alert_saved': False,
-                        'alert_pending_save': False,
-                        'save_scheduled_time': 0,
-                        'alert_data': None
+                        'last_save_time': 0, 'is_recording': False,
+                        'recording_frames': [], 'post_roll_counter': 0,
+                        'alert_frame_count': 0
                     }
 
-                
                 person = people_states[track_id]
-                alpha = 0.5 
-                person['smoothed_box'] = (alpha * box) + ((1.0 - alpha) * person['smoothed_box'])
                 
+                # Smooth box movement
+                person['smoothed_box'] = (0.5 * box) + (0.5 * person['smoothed_box'])
                 person['pose_seq'].append(kpts_flat)
                 if len(person['pose_seq']) > 30: person['pose_seq'].pop(0)
 
-                use_box = person['smoothed_box']
-                x1, y1, x2, y2 = map(int, use_box)
-                cx = int((x1 + x2) / 2)
-                cy = int((y1 + y2) / 2)
-                
-                dist_speed = 0.0
+                # Track movement
+                bx1, by1, bx2, by2 = map(int, person['smoothed_box'])
+                cx, cy = (bx1 + bx2) // 2, (by1 + by2) // 2
                 if len(person['loc_hist']) > 0:
                     lx, ly = person['loc_hist'][-1]
-                    dist_speed = np.hypot(cx-lx, cy-ly)
-                    if dist_speed > 2:
-                        person['loc_hist'].append((cx, cy))
-                    if dist_speed < DETECTION_DIST_SPEED:
-                        person['stationary_counter'] += 1
-                    else:
-                        person['stationary_counter'] = 0
-                else:
-                    person['loc_hist'].append((cx, cy))
+                    if np.hypot(cx-lx, cy-ly) > 2: person['loc_hist'].append((cx, cy))
+                    person['stationary_counter'] = person['stationary_counter'] + 1 if np.hypot(cx-lx, cy-ly) < DETECTION_DIST_SPEED else 0
+                else: person['loc_hist'].append((cx, cy))
 
-                # AI Logic
+                # AI Inference (LSTM/Stealing)
                 if len(person['pose_seq']) == 30 and (frame_count % LOGIC_SKIP == 0):
                     inp = np.array([person['pose_seq']])
-                    lstm_out = lstm_model.predict(inp, verbose=0)
-                    lstm_err = np.mean(np.abs(lstm_out - inp))
-                    steal_prob = stealing_model.predict(inp, verbose=0)[0][0] if stealing_model else 0
-                    
-                    person['last_lstm_err'] = lstm_err
-                    person['last_steal_prob'] = steal_prob
-                else:
-                    lstm_err = person.get('last_lstm_err', 0.0)
-                    steal_prob = person.get('last_steal_prob', 0.0)
-
-                raw_label = "Normal"
-                color = (0, 255, 0)
-                acc = int(y_conf * 100)
-
-                is_hand_close = is_hand_in_stashing_zone(kpts_flat, height)
+                    person['last_lstm_err'] = np.mean(np.abs(lstm_model.predict(inp, verbose=0) - inp))
+                    person['last_steal_prob'] = stealing_model.predict(inp, verbose=0)[0][0] if stealing_model else 0
                 
-                #  BEHAVIOR LOGIC           
-                # 1. PRIORITY: LOITERING (Stillness)
-                # Uunahin natin ito. Kung hindi gumagalaw ang tao, LOITERING 'yan.
-                # Hindi dapat ito ma-override ng 'Stealing' glitch.
+                raw_label, color, acc = "Normal", (0, 255, 0), int(y_conf * 100)
+                
+                # Check Behaviors
                 if person['stationary_counter'] > STILLNESS_LIMIT:
-                    raw_label = "Loitering (Still)"
-                    color = (0, 255, 255) 
-                    acc = 90
-
-                # 2. PRIORITY: STEALING (Sensitive Hand Zone + High Threshold)
-                # Ilalagay natin ito sa pangalawa. At dadagdagan natin ng 'Net Displacement' check.
-                # Kung ang tao ay gumagalaw nang mabilis (walking), mahirap masabing stealing 'yun agad.
-                # Dapat ay 'focused' siya o kaya ay mabagal ang galaw habang nagnanakaw.
-# 2. PRIORITY: STEALING 
-                elif steal_prob > STEAL_THRESH:
-                        raw_label = "Anomaly: Stealing"
-                        color = (128, 0, 128) 
-                        
-                        # ACADEMIC PROBABILITY CALIBRATION (Min-Max Scaling)
-                        # I-mamap natin ang 0.20 -> 50% (Baseline ng detection)
-                        # At ang 1.0 -> 99%
-                        scaled_acc = 50.0 + ((steal_prob - STEAL_THRESH) / (1.0 - STEAL_THRESH)) * (99.0 - 50.0)
-                        
-                        # Stashing Zone Bonus (+15%)
-                        bonus_acc = 15 if is_hand_close else 0
-                        
-                        acc = min(int(scaled_acc + bonus_acc), 99)
-
-                # 3. PRIORITY: MOTION (Pacing & Area Loitering)
-                # Binabaan natin ang requirement: kahit kalahati pa lang ng history (10 secs), pwede na mag-detect.
+                    raw_label, color, acc = "Loitering (Still)", (0, 255, 255), 90
+                elif person['last_steal_prob'] > STEAL_THRESH:
+                    raw_label, color = "Anomaly: Stealing", (128, 0, 128)
+                    acc = min(int(50 + ((person['last_steal_prob'] - STEAL_THRESH) / (1.0 - STEAL_THRESH)) * 49) + (15 if is_hand_in_stashing_zone(kpts_flat, height) else 0), 99)
                 elif len(person['loc_hist']) >= (HISTORY_LEN // 2):
-                    xs = [p[0] for p in person['loc_hist']]
-                    ys = [p[1] for p in person['loc_hist']]
-                    
-                    # Calculate Path (Total nilakad) vs Displacement (Layo sa start point)
+                    xs, ys = [p[0] for p in person['loc_hist']], [p[1] for p in person['loc_hist']]
                     total_path = sum(np.hypot(xs[i]-xs[i-1], ys[i]-ys[i-1]) for i in range(1, len(xs)))
-                    net_displacement = np.hypot(xs[-1] - xs[0], ys[-1] - ys[0])
-                    area_width = max(xs) - min(xs)
-                    area_height = max(ys) - min(ys)
-
-                    # PACING LOGIC
-                    if total_path > (height * DETECTION_PACING_MULT) and net_displacement < (total_path * 0.5):
-                         raw_label = "Anomaly:Pacing"
-                         color = (255, 140, 0)
-                         acc = 88
-
-                    # LOITERING (AREA) LOGIC
-                    elif area_width < (width * DETECTION_LOITER_W) and area_height < (height * DETECTION_LOITER_H):
-                         raw_label = "Anomaly:Loitering (Area)"
-                         color = (0, 255, 255)
-                         acc = 92
-
-                # 4. OTHER BEHAVIORS
+                    if total_path > (height * DETECTION_PACING_MULT) and np.hypot(xs[-1]-xs[0], ys[-1]-ys[0]) < (total_path * 0.5):
+                        raw_label, color, acc = "Anomaly:Pacing", (255, 140, 0), 88
+                    elif (max(xs)-min(xs)) < (width * DETECTION_LOITER_W) and (max(ys)-min(ys)) < (height * DETECTION_LOITER_H):
+                        raw_label, color, acc = "Anomaly:Loitering (Area)", (0, 255, 255), 92
                 elif check_head_scanning(kpts_flat, person['scan_hist']):
-                    raw_label = "Anomaly: Scanning"
-                    color = (255, 165, 0) 
-                    acc = 85
+                    raw_label, color, acc = "Anomaly: Scanning", (255, 165, 0), 85
+
                 is_validated = validator.get_temporal_validation(track_id, raw_label)
                 final_label = raw_label if is_validated else "Normal"
-                final_color = color if is_validated else (0, 255, 0)
                 
-                
+                # Update visual state
                 person['current_label'] = final_label
-                person['current_color'] = final_color
+                person['current_color'] = color if is_validated else (0, 255, 0)
                 person['current_acc'] = acc
+                active_suspects = sum(1 for p in people_states.values() if "Anomaly" in p.get('current_label', ''))
 
-                active_suspects = sum(1 for p in people_states.values() if "Stealing" in p.get('current_label', ''))
-                
-                if final_label != "Normal" and not person.get('alert_saved', False) and not person.get('alert_pending_save', False):
-                    cooldown = 60.0 if "Stealing" in final_label else 30.0
-                    if (time.time() - person.get('last_save_time', 0)) > cooldown:
-                        person['alert_pending_save'] = True
-                        person['save_scheduled_time'] = time.time() + 7.5 # Wait 7.5s for post-roll
-                        person['alert_data'] = (final_label, track_id, acc, active_suspects)
-                        
-                        # Emit immediate detection event via SSE
-                        if SSE_AVAILABLE:
-                            emit_detection(camera_name, final_label, acc)
-
-                if person.get('alert_pending_save', False) and time.time() >= person['save_scheduled_time']:
-                    person['alert_pending_save'] = False
-                    person['alert_saved'] = True
-                    person['last_save_time'] = time.time()
-                    p_label, p_track_id, p_acc, p_suspects = person['alert_data']
-                    
-                    # Passing a copy of the current frame_buffer (last 15 seconds)
-                    threading.Thread(target=save_alert_clip, 
-                                      args=(list(frame_buffer), p_label, p_track_id, p_acc, real_time_fps, p_suspects, camera_name)).start()
-
-                if final_label == "Normal":
-                    person['alert_saved'] = False
-                    person['alert_pending_save'] = False # Cancel pending if it returns to normal too quickly? 
-                    # Actually, better to keep it if we want to see what happened. 
-                    # But the current logic resets alert_saved on Normal.
-                    # Let's keep it consistent.
-                            
-                bx1, by1, bx2, by2 = map(int, person['smoothed_box'])
-                cv2.rectangle(frame, (bx1, by1), (bx2, by2), person['current_color'], 2)
-                
-                label_text = f"{person['current_label']} ({person['current_acc']}%)"
-                cv2.putText(frame, f"ID {track_id}", (bx1, by1-25), cv2.FONT_HERSHEY_SIMPLEX, 0.5, person['current_color'], 2)
-                cv2.putText(frame, label_text, (bx1, by1-5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, person['current_color'], 2)
+                # --- ALWAYS DRAW BOXES (Inside Loop) ---
+                thickness = 3 if is_validated else 1
+                cv2.rectangle(frame, (bx1, by1), (bx2, by2), person['current_color'], thickness)
+                cv2.putText(frame, f"ID {track_id} {person['current_label']} ({person['current_acc']}%)", 
+                            (bx1, by1-10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, person['current_color'], 2)
                 
                 for i in range(0, 17):
                     xk, yk = int(kpts_flat[i*2] * width), int(kpts_flat[i*2+1] * height)
-                    if xk > 0 and yk > 0: cv2.circle(frame, (xk, yk), 4, (0, 255, 0), -1)
+                    if xk > 0 and yk > 0: cv2.circle(frame, (xk, yk), 3, (0, 255, 0), -1)
+
+                # --- DYNAMIC RECORDING LOGIC ---
+                if final_label != "Normal":
+                    cooldown = 60.0 if "Stealing" in final_label else 30.0
+                    if not person.get('is_recording', False) and (time.time() - person.get('last_save_time', 0)) > cooldown:
+                        # START RECORDING: Start exactly when alert is triggered
+                        person['is_recording'] = True
+                        person['recording_frames'] = [] 
+                        person['recording_label'] = final_label
+                        person['recording_acc'] = acc
+                        person['recording_suspects'] = active_suspects
+                        person['post_roll_counter'] = 0
+                        person['alert_frame_count'] = 0
+                        
+                        # Immediate Alert + Snapshot
+                        if SSE_AVAILABLE:
+                            emit_detection(camera_name, final_label, acc, org_id=camera.org_id)
+                        save_instant_snapshot(frame.copy(), camera_name, camera.org_id, final_label, track_id)
+                    
+                    if person.get('is_recording', False):
+                        person['recording_frames'].append(frame.copy())
+                        person['alert_frame_count'] += 1
+                        
+                        if len(person['recording_frames']) > 900: # Max 30 seconds safety
+                            trigger_dynamic_save(person, track_id, camera_name, camera.org_id, real_time_fps)
+                
+                elif person.get('is_recording', False):
+                    # Anomaly stopped: end exactly now
+                    trigger_dynamic_save(person, track_id, camera_name, camera.org_id, real_time_fps)
+
+        # --- Handle suspects who left the frame while recording ---
+        for t_id, p in list(people_states.items()):
+            if p.get('is_recording', False) and t_id not in active_ids_this_frame:
+                p['recording_frames'].append(frame.copy()) # Add current empty frame
+                p['post_roll_counter'] += 1
+                if p['post_roll_counter'] > 120: 
+                    trigger_dynamic_save(p, t_id, camera_name, camera.org_id, real_time_fps)
 
         frame_count += 1
         frame_buffer.append(frame.copy())
-
         ret, buffer = cv2.imencode('.jpg', frame)
         yield (b'--frame\r\nContent-Type: image/jpeg\r\n\r\n' + buffer.tobytes() + b'\r\n')
 
@@ -939,7 +1161,8 @@ def get_cameras():
             "online": online,
             "type":   cam_type,
             "src":    src,
-            "org_id": firestore_data.get("org_id", "default")
+            "org_id": firestore_data.get("org_id", "default"),
+            "owner":  firestore_data.get("owner", "unknown")
         })
 
     return {"cameras": cam_list}, 200
@@ -947,32 +1170,48 @@ def get_cameras():
 
 @app.route('/delete_camera/<camera_name>', methods=['DELETE'])
 def delete_camera(camera_name):
-    if camera_name not in cameras_dict:
-        return {"error": "Camera not found"}, 404
+    # 1. Try to stop the stream if it's currently running in memory
+    if camera_name in cameras_dict:
+        try:
+            cam = cameras_dict[camera_name]
+            if hasattr(cam, 'stop'):
+                cam.stop()
+            elif hasattr(cam, 'stopped'):
+                cam.stopped = True
+            del cameras_dict[camera_name]
+            print(f"[INFO] Stopped active stream for: {camera_name}")
+        except Exception as e:
+            print(f"!! Error stopping stream: {e}")
 
-    # I-stop ang camera stream
-    cam = cameras_dict[camera_name]
-    if hasattr(cam, 'stop'):
-        cam.stop()
-    elif hasattr(cam, 'stopped'):
-        cam.stopped = True
-    del cameras_dict[camera_name]
-
-    # I-delete sa Firestore
+    # 2. Always attempt to delete from Firestore (Database)
     try:
+        # Check by 'name' field
         docs = db.collection("cameras").where("name", "==", camera_name).stream()
+        deleted_count = 0
         for doc in docs:
             doc.reference.delete()
-        print(f"[INFO] Camera deleted: {camera_name}")
+            deleted_count += 1
+            
+        # Also try to check if camera_name was the Document ID
+        doc_ref = db.collection("cameras").document(camera_name)
+        if doc_ref.get().exists:
+            doc_ref.delete()
+            deleted_count += 1
+
+        if deleted_count > 0:
+            print(f"[INFO] Camera '{camera_name}' deleted from database.")
+            return {"message": f"Camera '{camera_name}' deleted successfully!"}, 200
+        else:
+            return {"error": "Camera not found in database"}, 404
+
     except Exception as e:
         print(f"!! Firestore delete error: {e}")
-
-    return {"message": f"Camera '{camera_name}' deleted successfully!"}, 200
+        return {"error": f"Database error: {str(e)}"}, 500
 @app.route('/video/<camera_name>')
 def video_feed(camera_name):
     return Response(gen_frames(camera_name), mimetype='multipart/x-mixed-replace; boundary=frame')
 
-@app.route('/stream')
+@app.route('/stream', strict_slashes=False)
 @exempt_from_rate_limit
 def stream():
     """
@@ -985,7 +1224,14 @@ def stream():
             events_param = request.args.get('events', 'alert,camera_status,detection,health')
             event_types = [e.strip() for e in events_param.split(',')]
             client_id = request.args.get('client_id', f"ai-{time.time()}")
-            return create_sse_response(event_types, client_id)
+            org_id = request.args.get('org_id')
+            
+            response = create_sse_response(event_types, client_id, org_id)
+            # Explicitly force the MIME type to prevent browser abortion
+            response.headers['Content-Type'] = 'text/event-stream'
+            response.headers['Cache-Control'] = 'no-cache'
+            response.headers['X-Accel-Buffering'] = 'no'
+            return response
         except Exception as e:
             print(f"[SSE] Error creating SSE response: {e}")
 
@@ -1004,15 +1250,14 @@ def get_logs():
         return jsonify([])
     
     try:
-        # NOTE: If this fails, check your Firebase Console for a "Composite Index" requirement link.
+        # ALIGNED FIX: Ordering by 'created_at' to match your Firestore Composite Index
         query = db.collection("detections").where("org_id", "==", org_id)
-        
-        # Try ordering by timestamp - if this fails without an index, it will catch below
-        docs = query.order_by("timestamp", direction=firestore.Query.DESCENDING).limit(20).stream()
+        docs = query.order_by("created_at", direction=firestore.Query.DESCENDING).limit(20).stream()
         
         logs = []
         for doc in docs:
             d = doc.to_dict()
+            # Convert timestamp for display if it exists
             if 'timestamp' in d and hasattr(d['timestamp'], 'strftime'):
                 d['timestamp'] = d['timestamp'].strftime("%B %d, %Y at %I:%M:%S %p")
             d['id'] = doc.id 
@@ -1021,16 +1266,21 @@ def get_logs():
         return jsonify(logs)
     except Exception as e:
         print(f"!! Firebase Logs Fetch Error: {e}")
-        # Fallback: Try fetching without ordering if index is missing (to at least show something)
+        # Fallback: Try fetching without ordering if index is still building
         try:
             docs = db.collection("detections").where("org_id", "==", org_id).limit(20).stream()
             logs = []
             for doc in docs:
                 d = doc.to_dict()
+                raw_ts = d.get('created_at') or d.get('timestamp')
+                
                 if 'timestamp' in d and hasattr(d['timestamp'], 'strftime'):
                     d['timestamp'] = d['timestamp'].strftime("%B %d, %Y at %I:%M:%S %p")
                 d['id'] = doc.id
+                d['_raw_ts'] = str(raw_ts) if raw_ts else ""
                 logs.append(d)
+            
+            logs.sort(key=lambda x: x.get('_raw_ts', ''), reverse=True)
             return jsonify(logs)
         except Exception as e2:
             print(f"!! Fallback Fetch Error: {e2}")
@@ -1087,7 +1337,7 @@ def update_detection_settings():
     print(f"[INFO] Detection settings updated: {data}")
     return {"message": "Settings updated successfully!"}, 200
 
-@app.route('/delete_user/<user_id>', methods=['DELETE'])
+@app.route('/delete_user/<user_id>', methods=['DELETE'])    
 def delete_user(user_id):
     try:
         from firebase_admin import auth as firebase_auth
@@ -1102,41 +1352,251 @@ from flask import send_from_directory
 import os
 
 # PALITAN ITO NG TOTOONG DRIVE LETTER NG SD CARD MO (e.g., 'E:/CCTV_Records' o 'D:/Records')
-SD_CARD_PATH = "D:/CCTV_Records" 
+SD_CARD_PATH = "D:/CCTV_Record" 
+BIN_PATH = "D:/CCTV_Record_Bin"
+RETENTION_DAYS = 14
+
+def enforce_retention_policy(org_id):
+    """Checks the org folder and moves folders older than 14 days to the Bin."""
+    org_path = os.path.join(SD_CARD_PATH, org_id)
+    bin_org_path = os.path.join(BIN_PATH, org_id)
+
+    if not os.path.exists(org_path):
+        return
+
+    now = datetime.now()
+
+    for camera_name in os.listdir(org_path):
+        cam_path = os.path.join(org_path, camera_name)
+        if not os.path.isdir(cam_path): continue
+
+        for date_str in os.listdir(cam_path):
+            date_path = os.path.join(cam_path, date_str)
+            if not os.path.isdir(date_path): continue
+
+            try:
+                folder_date = datetime.strptime(date_str, "%Y-%m-%d")
+                if (now - folder_date).days > RETENTION_DAYS:
+                    target_cam_bin = os.path.join(bin_org_path, camera_name)
+                    os.makedirs(target_cam_bin, exist_ok=True)
+                    target_date_bin = os.path.join(target_cam_bin, date_str)
+                    print(f"🗑️ [ARCHIVE] Moving old recording {date_str} to Recycle Bin...")
+                    shutil.move(date_path, target_date_bin)
+            except ValueError:
+                pass
+
+@app.route('/get_recorded_cameras', methods=['GET'])
+def get_recorded_cameras():
+    org_id = request.args.get("org_id", "default").strip()
+    is_bin = request.args.get("is_bin", "false").lower() == "true"
+    
+    if not is_bin:
+        enforce_retention_policy(org_id)
+        
+    base_path = BIN_PATH if is_bin else SD_CARD_PATH
+    org_path = os.path.join(base_path, org_id)
+    
+    if not os.path.exists(org_path):
+        return {"cameras": []}, 200
+        
+    try:
+        cameras = [d for d in os.listdir(org_path) if os.path.isdir(os.path.join(org_path, d))]
+        cameras.sort()
+        return {"cameras": cameras}, 200
+    except Exception as e:
+        print(f"❌ [SEARCH] Error listing recorded cameras: {e}")
+        return {"error": str(e)}, 500
 
 @app.route('/get_recordings', methods=['GET'])
 def get_recordings():
-    camera_name = request.args.get("camera")
-    date_str = request.args.get("date") # Format: YYYY-MM-DD
+    camera_name = request.args.get("camera", "").strip()
+    date_str = request.args.get("date", "").strip() 
+    org_id = request.args.get("org_id", "default").strip()
+    is_bin = request.args.get("is_bin", "false").lower() == "true"
     
     if not camera_name or not date_str:
         return {"error": "Missing parameters"}, 400
-        
-    # Expected folder structure: D:/CCTV_Records/Living_Room_Camera/2026-03-23/
-    folder_path = os.path.join(SD_CARD_PATH, camera_name, date_str)
+
+    date_str = date_str.replace("/", "-")
+    base_path = BIN_PATH if is_bin else SD_CARD_PATH
+    org_path = os.path.join(base_path, org_id)
+    actual_camera_folder = camera_name
+    
+    if not os.path.exists(os.path.join(org_path, camera_name)):
+        try:
+            if os.path.exists(org_path):
+                existing_folders = os.listdir(org_path)
+                for folder in existing_folders:
+                    if folder.lower() == camera_name.lower():
+                        actual_camera_folder = folder
+                        break
+        except:
+            pass
+
+    folder_path = os.path.join(org_path, actual_camera_folder, date_str)
     
     if not os.path.exists(folder_path):
         return {"files": []}, 200
         
-    # Kuhanin lahat ng .mp4 files sa loob ng folder
-    files = [f for f in os.listdir(folder_path) if f.endswith('.mp4')]
-    files.sort() # I-sort para sunod-sunod ang oras
-    
-    return {"files": files}, 200
+    try:
+        files = [f for f in os.listdir(folder_path) if f.lower().endswith(('.mp4', '.webm'))]
+        files.sort()
+        return {"files": files}, 200
+    except Exception as e:
+        return {"error": str(e)}, 500
 
 @app.route('/play_record', methods=['GET'])
 def play_record():
     camera_name = request.args.get("camera")
     date_str = request.args.get("date")
     file_name = request.args.get("file")
+    org_id = request.args.get("org_id", "default")
+    is_bin = request.args.get("is_bin", "false").lower() == "true"
     
-    folder_path = os.path.join(SD_CARD_PATH, camera_name, date_str)
+    base_path = BIN_PATH if is_bin else SD_CARD_PATH
+    folder_path = os.path.abspath(os.path.join(base_path, org_id, camera_name, date_str))
     
-    if not os.path.exists(os.path.join(folder_path, file_name)):
+    file_path = os.path.join(folder_path, file_name)
+    if not os.path.exists(file_path):
         return "Video not found", 404
         
-    # Ise-serve ng Flask ang video file papunta sa React
-    return send_from_directory(folder_path, file_name, mimetype='video/mp4')
+    mimetype = 'video/webm' if file_name.endswith('.webm') else 'video/mp4'
+    response = send_from_directory(folder_path, file_name, mimetype=mimetype)
+    response.headers['Accept-Ranges'] = 'bytes'
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    return response
+@app.route('/delete_raw_record', methods=['POST'])
+def delete_raw_record():
+    data = request.get_json()
+    camera_name = data.get("camera")
+    date_str = data.get("date")
+    file_name = data.get("file")
+    org_id = data.get("org_id", "default")
+
+    if not all([camera_name, date_str, file_name, org_id]):
+        return {"error": "Missing parameters"}, 400
+
+    # Kunin ang pinanggalingan ng file (Source)
+    src_folder = os.path.join(SD_CARD_PATH, org_id, camera_name, date_str)
+    src_file = os.path.join(src_folder, file_name)
+
+    # Kunin ang pupuntahan ng file (Destination / Recycle Bin)
+    dest_folder = os.path.join(BIN_PATH, org_id, camera_name, date_str)
+    dest_file = os.path.join(dest_folder, file_name)
+
+    if not os.path.exists(src_file):
+        return {"error": "File not found"}, 404
+
+    try:
+        # Siguraduhing may folder na sa Recycle Bin bago ilipat
+        os.makedirs(dest_folder, exist_ok=True)
+        shutil.move(src_file, dest_file)
+        print(f"🗑️ [MANUAL ARCHIVE] Moved {file_name} to Recycle Bin.")
+        return {"message": "Video moved to Recycle Bin"}, 200
+    except Exception as e:
+        print(f"❌ [ARCHIVE ERROR] {e}")
+        return {"error": str(e)}, 500
+@app.route('/restore_raw_record', methods=['POST'])
+def restore_raw_record():
+    import shutil
+    import os
+    SD_CARD_PATH = "D:/CCTV_Record" 
+    BIN_PATH = "D:/CCTV_Record_Bin" 
+
+    data = request.get_json()
+    camera_name = data.get("camera")
+    date_str = data.get("date")
+    file_name = data.get("file")
+    org_id = data.get("org_id", "default")
+
+    if not all([camera_name, date_str, file_name, org_id]):
+        return {"error": "Missing parameters"}, 400
+
+    # Kunin galing sa Recycle Bin
+    src_file = os.path.join(BIN_PATH, org_id, camera_name, date_str, file_name)
+    # Ibabalik sa Main Storage
+    dest_folder = os.path.join(SD_CARD_PATH, org_id, camera_name, date_str)
+    dest_file = os.path.join(dest_folder, file_name)
+
+    if not os.path.exists(src_file):
+        return {"error": "File not found in Recycle Bin"}, 404
+
+    try:
+        os.makedirs(dest_folder, exist_ok=True)
+        shutil.move(src_file, dest_file)
+        print(f"♻️ [RESTORE] Successfully moved {file_name} back to Dashboard.")
+        return {"message": "Video restored successfully"}, 200
+    except Exception as e:
+        print(f"❌ [RESTORE ERROR] {e}")
+        return {"error": str(e)}, 500
+
+@app.route('/permanent_delete_raw_record', methods=['POST'])
+def permanent_delete_raw_record():
+    import os
+    BIN_PATH = "D:/CCTV_Record_Bin" 
+
+    data = request.get_json()
+    camera_name = data.get("camera")
+    date_str = data.get("date")
+    file_name = data.get("file")
+    org_id = data.get("org_id", "default")
+
+    if not all([camera_name, date_str, file_name, org_id]):
+        return {"error": "Missing parameters"}, 400
+
+    target_file = os.path.join(BIN_PATH, org_id, camera_name, date_str, file_name)
+
+    if not os.path.exists(target_file):
+        return {"error": "File not found"}, 404
+
+    try:
+        os.remove(target_file) # TULUYAN NANG BUBURAHIN SA HARD DRIVE
+        print(f"🔥 [HARD DELETE] Permanently deleted {file_name}.")
+        return {"message": "Video permanently deleted"}, 200
+    except Exception as e:
+        print(f"❌ [HARD DELETE ERROR] {e}")
+        return {"error": str(e)}, 500
+    
+@app.route('/delete_alert_video', methods=['POST'])
+def delete_alert_video():
+    data = request.get_json()
+    video_url = data.get("video_url")
+    
+    if not video_url or "cloudinary" not in video_url:
+        return {"message": "No remote video to delete or invalid URL"}, 200
+
+    try:
+        # Extract public_id from Cloudinary URL
+        # Example: https://res.cloudinary.com/cloud_name/video/upload/v12345/folder/public_id.mp4
+        # We need everything after /upload/ (excluding version and extension)
+        parts = video_url.split('/upload/')
+        if len(parts) < 2:
+            return {"error": "Invalid Cloudinary URL format"}, 400
+            
+        path_after_upload = parts[1]
+        # Remove version (v1234567/) if present
+        if path_after_upload.startswith('v') and '/' in path_after_upload:
+            path_after_upload = path_after_upload.split('/', 1)[1]
+            
+        # Remove extension (.mp4, .avi, etc.)
+        public_id = path_after_upload.rsplit('.', 1)[0]
+        
+        print(f"[CLOUDINARY] Attempting to delete video with Public ID: {public_id}")
+        
+        # Delete from Cloudinary
+        result = cloudinary.uploader.destroy(public_id, resource_type="video")
+        
+        if result.get("result") == "ok":
+            print(f"✅ [CLOUDINARY] Successfully deleted: {public_id}")
+            return {"message": "Video deleted successfully"}, 200
+        else:
+            print(f"⚠️ [CLOUDINARY] Deletion response: {result}")
+            return {"message": "Cloudinary reported: " + str(result.get("result"))}, 200
+
+    except Exception as e:
+        print(f"❌ [CLOUDINARY-ERROR] Failed to delete video: {e}")
+        return {"error": str(e)}, 500
 
 
 if __name__ == '__main__':
