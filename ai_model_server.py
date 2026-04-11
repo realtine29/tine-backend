@@ -163,8 +163,8 @@ validator = BehaviorValidator()
 app = Flask(__name__)
 # Explicitly allow CORS for the frontend origin
 CORS(app, resources={r"/*": {
-    "origins": "*",
-    "methods": ["GET", "POST", "OPTIONS"],  # Siguraduhin na may POST dito
+    "origins": ["https://bejewelled-cucurucho-944a9f.netlify.app", "*"],
+    "methods": ["GET", "POST", "OPTIONS", "DELETE"],
     "allow_headers": ["Content-Type", "Authorization", "Cache-Control"]
 }})
 # Initialize security modules if available
@@ -1130,8 +1130,7 @@ def gen_frames(camera_name):
 
 @app.route('/cameras', methods=['GET', 'OPTIONS']) # Dagdagan ng OPTIONS
 def get_cameras():
-    if request.method == 'OPTIONS':
-        return '', 200
+    if request.method == 'OPTIONS': return '', 200
     # ... rest of your code
     org_id = request.args.get("org_id", None)
     cam_list = []
@@ -1221,6 +1220,8 @@ def video_feed(camera_name):
 @app.route('/stream', strict_slashes=False)
 @exempt_from_rate_limit
 def stream():
+    if request.method == 'OPTIONS':
+        return '', 200
     """
     SSE stream endpoint. If sse_manager is available, it uses the proper
     SSE response creator to allow for persistent real-time updates.
@@ -1234,6 +1235,10 @@ def stream():
             org_id = request.args.get('org_id')
             
             response = create_sse_response(event_types, client_id, org_id)
+            
+
+            response.headers['Access-Control-Allow-Origin'] = '*'
+            response.headers['Access-Control-Allow-Headers'] = 'Cache-Control, Content-Type, Authorization'
             # Explicitly force the MIME type to prevent browser abortion
             response.headers['Content-Type'] = 'text/event-stream'
             response.headers['Cache-Control'] = 'no-cache'
@@ -1247,7 +1252,11 @@ def stream():
         while True:
             yield "data: {\"type\": \"heartbeat\"}\n\n"
             time.sleep(30)
-    return Response(generate(), mimetype="text/event-stream")
+    res = Response(generate(), mimetype="text/event-stream")
+    res.headers['Access-Control-Allow-Origin'] = '*' # Dagdagan din dito para sa fallback
+    return res
+   
+
 
 @app.route('/logs', methods=['GET'])
 @exempt_from_rate_limit
@@ -1392,8 +1401,9 @@ def enforce_retention_policy(org_id):
             except ValueError:
                 pass
 
-@app.route('/get_recorded_cameras', methods=['GET'])
+@app.route('/get_recorded_cameras', methods=['GET', 'OPTIONS'])
 def get_recorded_cameras():
+    if request.method == 'OPTIONS': return '', 200
     org_id = request.args.get("org_id", "default").strip()
     is_bin = request.args.get("is_bin", "false").lower() == "true"
     
