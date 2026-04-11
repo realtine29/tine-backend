@@ -162,7 +162,11 @@ validator = BehaviorValidator()
 #  INITIALIZATION
 app = Flask(__name__)
 # Explicitly allow CORS for the frontend origin
-CORS(app, resources={r"/*": {"origins": "*"}})
+CORS(app, resources={r"/*": {
+    "origins": ["https://bejewelled-cucurucho-944a9f.netlify.app", "http://localhost:3000"],
+    "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    "allow_headers": ["Content-Type", "Authorization"]
+}})
 
 # Initialize security modules if available
 if SECURITY_AVAILABLE:
@@ -1124,8 +1128,12 @@ def gen_frames(camera_name):
 
 
 #  FLASK ROUTES
-@app.route('/cameras', methods=['GET'])
+
+@app.route('/cameras', methods=['GET', 'OPTIONS']) # Dagdagan ng OPTIONS
 def get_cameras():
+    if request.method == 'OPTIONS':
+        return '', 200
+    # ... rest of your code
     org_id = request.args.get("org_id", None)
     cam_list = []
 
