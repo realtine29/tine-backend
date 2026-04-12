@@ -45,8 +45,12 @@ from sse_manager import create_sse_response, emit_alert, emit_camera_status, emi
 
 # Initialize Flask app
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "*"}})
 
+CORS(app, resources={r"/*": {
+    "origins": ["https://bejewelled-cucurucho-944a9f.netlify.app", "*"],
+    "methods": ["GET", "POST", "OPTIONS", "DELETE"],
+    "allow_headers": ["Content-Type", "Authorization", "Cache-Control"]
+}})
 # Initialize rate limiter
 init_rate_limiter(app)
 
